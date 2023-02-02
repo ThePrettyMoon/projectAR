@@ -1,0 +1,16 @@
+{
+    "detectFps" : 1,
+    "bUseMnn" : 0,
+
+    "inputImageWidth" : 224,
+    "inputImageHeight" : 224,
+    "outputImageWidth" : 640,
+    "outputImageHeight" : 360,
+    "isVertical" : 1,
+
+    "object_labels" : "255,0",
+
+    "dilateKernels" : 5,
+    "erodeKernels" : 5,
+    "blurKernels" : 5
+}

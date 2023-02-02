@@ -1,0 +1,32 @@
+{
+    "InputFeatureNum" : 1,
+    "InputWidth" : 224,
+    "InputHeight" : 224,
+    "OutFeatureNum" : 1,
+    "OutFeatureWidth" : 7,
+    "OutFeatureHeight" : 7,
+    "OutFeatureChannel" : 80,
+    
+    "ncnn" : {
+        "InputFeatureIndex" : 0,
+        "OutFeatureIndex" : 72,
+        "InputFeatureName" : "data",
+        "OutFeatureName" : "conv_pred_11_output",
+        "WeightPath" : "GestureDetect.bin",
+        "ParamPath" : "GestureDetect.weight",
+        "Means" : [123.68, 116.78, 103.94],
+        "Norms" : [1, 1, 1]
+    },
+    
+    "coreml" : {
+          "bEncrypted" : 0,
+          "MlmodelcPath" : "GestureDetect.mlmodelc",
+          "InputFeatureName" : "data",
+          "OutFeatureName" : "conv_pred_11_output"
+    }
+}
+
+
+
+
+

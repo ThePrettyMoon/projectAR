@@ -1,0 +1,3363 @@
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ Define ------------------------------------------
+// --------------------------------------------------------------------------------------------
+
+// USE_MAP
+// USE_NORMALMAP
+// USE_ROUGHNESSMAP
+// USE_METALNESSMAP
+// USE_EMISSION
+// USE_EMISSIVEMAP
+// USE_AOMAP
+// TRANSPARENCY
+// ALPHATEST
+
+#ifdef FRAGMENT
+    #extension GL_EXT_shader_texture_lod : enable
+    #ifdef INSIGHT3D_ANDROID
+        #extension GL_OES_EGL_image_external : require
+    #else
+        #define INSIGHT3D_IOS
+    #endif
+#endif
+
+precision highp float;
+precision highp int;
+
+#define HIGH_PRECISION
+
+#define GAMMA_FACTOR 2.2
+
+// #define USE_FOG
+// #define FOG_EXP2
+#define USE_ENVMAP
+#define ENVMAP_TYPE_CUBE
+#define ENVMAP_MODE_REFLECTION
+#define ENVMAP_BLENDING_MULTIPLY
+// #define USE_LIGHTMAP
+// #define USE_BUMPMAP
+// #define OBJECTSPACE_NORMALMAP
+#define TANGENTSPACE_NORMALMAP
+
+// #define USE_CLEARCOAT_NORMALMAP
+// #define USE_SPECULARMAP
+// #define USE_ALPHAMAP
+#define USE_TANGENT
+// #define USE_COLOR
+#define USE_UV
+// #define FLAT_SHADED
+// #define USE_SKINNING
+// #define BONE_TEXTURE
+// #define USE_MORPHTARGETS
+// #define USE_MORPHNORMALS
+// #define DOUBLE_SIDED
+// #define FLIP_SIDED
+// #define USE_SHADOWMAP
+// #define SHADOWMAP_TYPE_PCF
+// #define SHADOWMAP_TYPE_PCF_SOFT
+
+#ifdef SHADOWS_SOFT
+    #ifdef SHADOWMAP_PCF_SOFT
+        #define SHADOWMAP_TYPE_PCF_SOFT
+    #else
+        #define SHADOWMAP_TYPE_PCF
+    #endif
+#endif
+
+#ifdef ENVMAP_MODE_REFRACTION
+    #define REFLECTIVITY
+#endif
+
+// #define USE_SIZEATTENUATION
+// #define USE_LOGDEPTHBUF
+// #define USE_LOGDEPTHBUF_EXT
+
+// #ifdef VERTEX
+// #define VERTEX_TEXTURES
+// #define MAX_BONES 50
+// #define USE_DISPLACEMENTMAP
+// #endif
+
+// #ifdef FRAGMENT
+// #define ALPHATEST 0.5
+// #define USE_MATCAP
+// #define USE_SHEEN
+// #endif
+
+#define NUM_DIR_LIGHTS 1
+#define DIRECTIONAL_LIGHT_SHADOW 1
+#define NUM_SPOT_LIGHTS 0
+#define NUM_RECT_AREA_LIGHTS 0
+#define NUM_POINT_LIGHTS 0
+#define NUM_HEMI_LIGHTS 0
+
+#define NUM_DIR_LIGHT_SHADOWS 1
+#define NUM_SPOT_LIGHT_SHADOWS 0
+#define NUM_POINT_LIGHT_SHADOWS 0
+
+#define NUM_CLIPPING_PLANES 0
+#define UNION_CLIPPING_PLANES 0
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ common ------------------------------------------
+// --------------------------------------------------------------------------------------------
+
+#define STANDARD
+
+#define PI 3.14159265359
+#define PI2 6.28318530718
+#define PI_HALF 1.5707963267949
+#define RECIPROCAL_PI 0.31830988618
+#define RECIPROCAL_PI2 0.15915494
+#define LOG2 1.442695
+#define EPSILON 1e-6
+
+#define saturate(a) clamp( a, 0.0, 1.0 )
+#define whiteComplement(a) ( 1.0 - saturate( a ) )
+
+float pow2( const in float x ) { return x*x; }
+float pow3( const in float x ) { return x*x*x; }
+float pow4( const in float x ) { float x2 = x*x; return x2*x2; }
+float average( const in vec3 color ) { return dot( color, vec3( 0.3333 ) ); }
+// expects values in the range of [0,1]x[0,1], returns values in the [0,1] range.
+// do not collapse into a single function per: http://byteblacksmith.com/improvements-to-the-canonical-one-liner-glsl-rand-for-opengl-es-2-0/
+highp float rand( const in vec2 uv ) {
+    const highp float a = 12.9898, b = 78.233, c = 43758.5453;
+    highp float dt = dot( uv.xy, vec2( a,b ) ), sn = mod( dt, PI );
+    return fract(sin(sn) * c);
+}
+
+#ifdef HIGH_PRECISION
+    float precisionSafeLength( vec3 v ) { return length( v ); }
+#else
+    float max3( vec3 v ) { return max( max( v.x, v.y ), v.z ); }
+    float precisionSafeLength( vec3 v ) {
+        float maxComponent = max3( abs( v ) );
+        return length( v / maxComponent ) * maxComponent;
+    }
+#endif
+
+struct IncidentLight {
+    vec3 color;
+    vec3 direction;
+    bool visible;
+};
+
+struct ReflectedLight {
+    vec3 directDiffuse;
+    vec3 directSpecular;
+    vec3 indirectDiffuse;
+    vec3 indirectSpecular;
+};
+
+struct GeometricContext {
+    vec3 position;
+    vec3 normal;
+    vec3 viewDir;
+#ifdef CLEARCOAT
+    vec3 clearcoatNormal;
+#endif
+};
+
+vec3 transformDirection( in vec3 dir, in mat4 matrix ) {
+
+    return normalize( ( matrix * vec4( dir, 0.0 ) ).xyz );
+
+}
+
+// http://en.wikibooks.org/wiki/GLSL_Programming/Applying_Matrix_Transformations
+vec3 inverseTransformDirection( in vec3 dir, in mat4 matrix ) {
+
+    return normalize( ( vec4( dir, 0.0 ) * matrix ).xyz );
+
+}
+
+vec3 projectOnPlane(in vec3 point, in vec3 pointOnPlane, in vec3 planeNormal ) {
+
+    float distance = dot( planeNormal, point - pointOnPlane );
+
+    return - distance * planeNormal + point;
+
+}
+
+float sideOfPlane( in vec3 point, in vec3 pointOnPlane, in vec3 planeNormal ) {
+
+    return sign( dot( point - pointOnPlane, planeNormal ) );
+
+}
+
+vec3 linePlaneIntersect( in vec3 pointOnLine, in vec3 lineDirection, in vec3 pointOnPlane, in vec3 planeNormal ) {
+
+    return lineDirection * ( dot( planeNormal, pointOnPlane - pointOnLine ) / dot( planeNormal, lineDirection ) ) + pointOnLine;
+
+}
+
+mat3 transposeMat3( const in mat3 m ) {
+
+    mat3 tmp;
+
+    tmp[ 0 ] = vec3( m[ 0 ].x, m[ 1 ].x, m[ 2 ].x );
+    tmp[ 1 ] = vec3( m[ 0 ].y, m[ 1 ].y, m[ 2 ].y );
+    tmp[ 2 ] = vec3( m[ 0 ].z, m[ 1 ].z, m[ 2 ].z );
+
+    return tmp;
+
+}
+
+// https://en.wikipedia.org/wiki/Relative_luminance
+float linearToRelativeLuminance( const in vec3 color ) {
+
+    vec3 weights = vec3( 0.2126, 0.7152, 0.0722 );
+
+    return dot( weights, color.rgb );
+
+}
+
+#ifdef VERTEX
+
+#ifndef INSIGHT3D_ANDROID
+    #define INSIGHT3D_IOS
+#endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ prefixVertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+uniform mat4 mat_ObjectToWorld; //modelMatrix
+uniform mat4 mat_MatrixProjection; //projectionMatrix
+uniform mat4 mat_MatrixView; //viewMatrix
+uniform vec3 u_world_space_camera_pos;//cameraPosition
+#define modelViewMatrix mat_MatrixView*mat_ObjectToWorld
+#define normalMatrix mat_MatrixView*mat_ObjectToWorld
+
+attribute vec3 a_position; //position
+attribute vec4 a_normal; //normal
+attribute vec2 a_texcoord0; //uv
+
+#ifdef USE_TANGENT
+    attribute vec4 a_tangent; //tangent
+#endif
+
+#ifdef USE_COLOR
+    attribute vec4 a_color0;//color
+#endif
+
+#ifdef USE_MORPHTARGETS
+    attribute vec3 morphTarget0;
+    attribute vec3 morphTarget1;
+    attribute vec3 morphTarget2;
+    attribute vec3 morphTarget3;
+    
+    #ifdef USE_MORPHNORMALS
+        attribute vec3 morphNormal0;
+        attribute vec3 morphNormal1;
+        attribute vec3 morphNormal2;
+        attribute vec3 morphNormal3;
+    #else
+        attribute vec3 morphTarget4;
+        attribute vec3 morphTarget5;
+        attribute vec3 morphTarget6;
+        attribute vec3 morphTarget7;
+    #endif
+#endif
+
+#ifdef USE_SKINNING
+    attribute vec4 a_indices;
+    attribute vec4 a_weight;
+#endif
+
+
+
+varying vec3 vViewPosition;
+
+#ifndef FLAT_SHADED
+
+    varying vec3 vNormal;
+
+    #ifdef USE_TANGENT
+
+        varying vec3 vTangent;
+        varying vec3 vBitangent;
+
+    #endif
+
+#endif
+
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ uv_pars_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+
+#ifdef USE_UV
+
+    varying vec2 vUv;
+    // uniform mat3 uvTransform;
+
+#endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ uv2_pars_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+#if defined( USE_LIGHTMAP ) || defined( USE_AOMAP )
+
+    attribute vec2 a_texcoord1; //uv2
+    varying vec2 vUv2;
+
+#endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ displacementmap_pars_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+#ifdef USE_DISPLACEMENTMAP
+
+    uniform sampler2D displacementMap;
+    uniform float displacementScale;
+    uniform float displacementBias;
+
+#endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ color_pars_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+#ifdef USE_COLOR
+
+    varying vec3 vColor;
+
+#endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ fog_pars_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+#ifdef USE_FOG
+
+    varying float fogDepth;
+
+#endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ morphtarget_pars_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+#ifdef USE_MORPHTARGETS
+
+    #ifndef USE_MORPHNORMALS
+
+    uniform float morphTargetInfluences[ 8 ];
+
+    #else
+
+    uniform float morphTargetInfluences[ 4 ];
+
+    #endif
+
+#endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ skinning_pars_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+#ifdef USE_SKINNING
+
+    uniform mat4 bindMatrix;
+    uniform mat4 bindMatrixInverse;
+
+    #ifdef BONE_TEXTURE
+
+        uniform highp sampler2D boneTexture;
+        uniform int boneTextureSize;
+
+        mat4 getBoneMatrix( const in float i ) {
+
+            float j = i * 4.0;
+            float x = mod( j, float( boneTextureSize ) );
+            float y = floor( j / float( boneTextureSize ) );
+
+            float dx = 1.0 / float( boneTextureSize );
+            float dy = 1.0 / float( boneTextureSize );
+
+            y = dy * ( y + 0.5 );
+
+            vec4 v1 = texture2D( boneTexture, vec2( dx * ( x + 0.5 ), y ) );
+            vec4 v2 = texture2D( boneTexture, vec2( dx * ( x + 1.5 ), y ) );
+            vec4 v3 = texture2D( boneTexture, vec2( dx * ( x + 2.5 ), y ) );
+            vec4 v4 = texture2D( boneTexture, vec2( dx * ( x + 3.5 ), y ) );
+
+            mat4 bone = mat4( v1, v2, v3, v4 );
+
+            return bone;
+
+        }
+
+    #else
+
+        uniform mat4 boneMatrices[ MAX_BONES ];
+
+        mat4 getBoneMatrix( const in float i ) {
+
+            mat4 bone = boneMatrices[ int(i) ];
+            return bone;
+
+        }
+
+    #endif
+
+#endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ shadowmap_pars_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+#ifdef USE_SHADOWMAP
+
+    #if NUM_DIR_LIGHT_SHADOWS > 0
+
+        // uniform mat4 directionalShadowMatrix[ NUM_DIR_LIGHT_SHADOWS ];
+        // varying vec4 vDirectionalShadowCoord[ NUM_DIR_LIGHT_SHADOWS ];
+
+        uniform highp mat4 mat_WorldToShadow[4];
+        varying vec4 vDirectionalShadowCoord;
+
+    #endif
+
+    #if NUM_SPOT_LIGHT_SHADOWS > 0
+
+        uniform mat4 spotShadowMatrix[ NUM_SPOT_LIGHT_SHADOWS ];
+        varying vec4 vSpotShadowCoord[ NUM_SPOT_LIGHT_SHADOWS ];
+
+    #endif
+
+    #if NUM_POINT_LIGHT_SHADOWS > 0
+
+        uniform mat4 pointShadowMatrix[ NUM_POINT_LIGHT_SHADOWS ];
+        varying vec4 vPointShadowCoord[ NUM_POINT_LIGHT_SHADOWS ];
+
+    #endif
+
+    /*
+    #if NUM_RECT_AREA_LIGHTS > 0
+
+        // TODO (abelnation): uniforms for area light shadows
+
+    #endif
+    */
+
+#endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ logdepthbuf_pars_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+#ifdef USE_LOGDEPTHBUF
+
+    #ifdef USE_LOGDEPTHBUF_EXT
+
+        varying float vFragDepth;
+
+    #else
+
+        uniform float logDepthBufFC;
+
+    #endif
+
+#endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ clipping_planes_pars_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+#if NUM_CLIPPING_PLANES > 0 && ! defined( STANDARD ) && ! defined( PHONG ) && ! defined( MATCAP )
+    varying vec3 vViewPosition;
+#endif
+
+void main() {
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ uv_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+    #ifdef USE_UV
+
+        // vUv = ( uvTransform * vec3( uv, 1 ) ).xy;
+        vUv = a_texcoord0;
+
+    #endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ uv2_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+    #if defined( USE_LIGHTMAP ) || defined( USE_AOMAP )
+
+        vUv2 = a_texcoord1;
+
+    #endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ color_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+    #ifdef USE_COLOR
+
+        vColor.xyz = a_color0.xyz;
+
+    #endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ beginnormal_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+    vec3 objectNormal = vec3( a_normal );
+
+    #ifdef USE_TANGENT
+
+        vec3 objectTangent = vec3( a_tangent.xyz );
+
+    #endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ morphnormal_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+    #ifdef USE_MORPHNORMALS
+
+        objectNormal += ( morphNormal0 - a_normal ) * morphTargetInfluences[ 0 ];
+        objectNormal += ( morphNormal1 - a_normal ) * morphTargetInfluences[ 1 ];
+        objectNormal += ( morphNormal2 - a_normal ) * morphTargetInfluences[ 2 ];
+        objectNormal += ( morphNormal3 - a_normal ) * morphTargetInfluences[ 3 ];
+
+    #endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ skinbase_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+    #ifdef USE_SKINNING
+
+        mat4 boneMatX = getBoneMatrix( skinIndex.x );
+        mat4 boneMatY = getBoneMatrix( skinIndex.y );
+        mat4 boneMatZ = getBoneMatrix( skinIndex.z );
+        mat4 boneMatW = getBoneMatrix( skinIndex.w );
+
+    #endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ skinnormal_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+    #ifdef USE_SKINNING
+
+        mat4 skinMatrix = mat4( 0.0 );
+        skinMatrix += skinWeight.x * boneMatX;
+        skinMatrix += skinWeight.y * boneMatY;
+        skinMatrix += skinWeight.z * boneMatZ;
+        skinMatrix += skinWeight.w * boneMatW;
+        skinMatrix  = bindMatrixInverse * skinMatrix * bindMatrix;
+
+        objectNormal = vec4( skinMatrix * vec4( objectNormal, 0.0 ) ).xyz;
+
+        #ifdef USE_TANGENT
+
+            objectTangent = vec4( skinMatrix * vec4( objectTangent, 0.0 ) ).xyz;
+
+        #endif
+
+    #endif
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ defaultnormal_vertex ------------------------------------------
+// --------------------------------------------------------------------------------------------
+    // vec3 transformedNormal = normalMatrix * objectNormal;
+    vec3 transformedNormal = vec4( normalMatrix * vec4( objectNormal, 0.0 ) ).xyz;
+
+    #ifdef FLIP_SIDED
+
+        transformedNormal = - transformedNormal;
+
+    #endif
+
+    #ifdef USE_TANGENT
+
+        // vec3 transformedTangent = normalMatrix * objectTangent;
+        vec3 transformedTangent = vec4( normalMatrix * vec4( objectTangent, 0.0 ) ).xyz;
+
+        #ifdef FLIP_SIDED
+
+            transformedTangent = - transformedTangent;
+
+        #endif
+
+    #endif
+
+
+
+
+    #ifndef FLAT_SHADED // Normal computed with derivatives when FLAT_SHADED
+
+        vNormal = normalize( transformedNormal );
+
+        #ifdef USE_TANGENT
+
+            vTangent = normalize( transformedTangent );
+            vBitangent = normalize( cross( vNormal, vTangent ) * a_tangent.w );
+
+        #endif
+
+    #endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ begin_vertex ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    vec3 transformed = vec3( a_position );
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ morphtarget_vertex ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef USE_MORPHTARGETS
+
+        transformed += ( morphTarget0 - a_position ) * morphTargetInfluences[ 0 ];
+        transformed += ( morphTarget1 - a_position ) * morphTargetInfluences[ 1 ];
+        transformed += ( morphTarget2 - a_position ) * morphTargetInfluences[ 2 ];
+        transformed += ( morphTarget3 - a_position ) * morphTargetInfluences[ 3 ];
+
+        #ifndef USE_MORPHNORMALS
+
+        transformed += ( morphTarget4 - a_position ) * morphTargetInfluences[ 4 ];
+        transformed += ( morphTarget5 - a_position ) * morphTargetInfluences[ 5 ];
+        transformed += ( morphTarget6 - a_position ) * morphTargetInfluences[ 6 ];
+        transformed += ( morphTarget7 - a_position ) * morphTargetInfluences[ 7 ];
+
+        #endif
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ skinning_vertex ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef USE_SKINNING
+
+        vec4 skinVertex = bindMatrix * vec4( transformed, 1.0 );
+
+        vec4 skinned = vec4( 0.0 );
+        skinned += boneMatX * skinVertex * skinWeight.x;
+        skinned += boneMatY * skinVertex * skinWeight.y;
+        skinned += boneMatZ * skinVertex * skinWeight.z;
+        skinned += boneMatW * skinVertex * skinWeight.w;
+
+        transformed = ( bindMatrixInverse * skinned ).xyz;
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ displacementmap_vertex ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef USE_DISPLACEMENTMAP
+
+        transformed += normalize( objectNormal ) * ( texture2D( displacementMap, a_texcoord0 ).x * displacementScale + displacementBias );
+
+    #endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ project_vertex ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+
+    vec4 mvPosition = modelViewMatrix * vec4( transformed, 1.0 );
+
+    gl_Position = mat_MatrixProjection * mvPosition;
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ logdepthbuf_vertex ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef USE_LOGDEPTHBUF
+
+        #ifdef USE_LOGDEPTHBUF_EXT
+
+            vFragDepth = 1.0 + gl_Position.w;
+
+        #else
+
+            gl_Position.z = log2( max( EPSILON, gl_Position.w + 1.0 ) ) * logDepthBufFC - 1.0;
+
+            gl_Position.z *= gl_Position.w;
+
+        #endif
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ clipping_planes_vertex ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #if NUM_CLIPPING_PLANES > 0 && ! defined( STANDARD ) && ! defined( PHONG ) && ! defined( MATCAP )
+        vViewPosition = - mvPosition.xyz;
+    #endif
+
+
+
+    vViewPosition = - mvPosition.xyz;
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ worldpos_vertex ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #if defined( USE_ENVMAP ) || defined( DISTANCE ) || defined ( USE_SHADOWMAP )
+
+        vec4 worldPosition = mat_ObjectToWorld * vec4( transformed, 1.0 );
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ shadowmap_vertex ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef USE_SHADOWMAP
+
+        #if NUM_DIR_LIGHT_SHADOWS > 0
+
+        #pragma unroll_loop
+        for ( int i = 0; i < NUM_DIR_LIGHT_SHADOWS; i ++ ) {
+
+            // vDirectionalShadowCoord[ i ] = directionalShadowMatrix[ i ] * worldPosition;
+            vDirectionalShadowCoord = mat_WorldToShadow[ 0 ] * worldPosition;
+
+        }
+
+        #endif
+
+        #if NUM_SPOT_LIGHT_SHADOWS > 0
+
+        #pragma unroll_loop
+        for ( int i = 0; i < NUM_SPOT_LIGHT_SHADOWS; i ++ ) {
+
+            vSpotShadowCoord[ i ] = spotShadowMatrix[ i ] * worldPosition;
+
+        }
+
+        #endif
+
+        #if NUM_POINT_LIGHT_SHADOWS > 0
+
+        #pragma unroll_loop
+        for ( int i = 0; i < NUM_POINT_LIGHT_SHADOWS; i ++ ) {
+
+            vPointShadowCoord[ i ] = pointShadowMatrix[ i ] * worldPosition;
+
+        }
+
+        #endif
+
+        /*
+        #if NUM_RECT_AREA_LIGHTS > 0
+
+            // TODO (abelnation): update vAreaShadowCoord with area light info
+
+        #endif
+        */
+
+    #endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ fog_vertex ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef USE_FOG
+
+        fogDepth = -mvPosition.z;
+
+    #endif
+
+}
+
+#endif
+
+
+
+#ifdef FRAGMENT
+
+// #ifdef INSIGHT3D_ANDROID
+//     #extension GL_OES_EGL_image_external : require
+// #else
+// 	#define INSIGHT3D_IOS
+// #endif
+
+#ifdef GL_EXT_shader_texture_lod
+    #define TEXTURE_LOD_EXT
+#endif
+
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ prefixFragment ------------------------------------------
+// --------------------------------------------------------------------------------------------
+uniform mat4 mat_MatrixView;
+uniform vec3 u_world_space_camera_pos;
+
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ encodings_pars_fragment ------------------------------------------
+// --------------------------------------------------------------------------------------------
+
+// For a discussion of what this is, please read this: http://lousodrome.net/blog/light/2013/05/26/gamma-correct-and-hdr-rendering-in-a-32-bits-buffer/
+
+vec4 LinearToLinear( in vec4 value ) {
+    return value;
+}
+
+vec4 GammaToLinear( in vec4 value, in float gammaFactor ) {
+    return vec4( pow( value.rgb, vec3( gammaFactor ) ), value.a );
+}
+
+vec4 LinearToGamma( in vec4 value, in float gammaFactor ) {
+    return vec4( pow( value.rgb, vec3( 1.0 / gammaFactor ) ), value.a );
+}
+
+vec4 sRGBToLinear( in vec4 value ) {
+    return vec4( mix( pow( value.rgb * 0.9478672986 + vec3( 0.0521327014 ), vec3( 2.4 ) ), value.rgb * 0.0773993808, vec3( lessThanEqual( value.rgb, vec3( 0.04045 ) ) ) ), value.a );
+}
+
+vec4 LinearTosRGB( in vec4 value ) {
+    return vec4( mix( pow( value.rgb, vec3( 0.41666 ) ) * 1.055 - vec3( 0.055 ), value.rgb * 12.92, vec3( lessThanEqual( value.rgb, vec3( 0.0031308 ) ) ) ), value.a );
+}
+
+vec3 LinearTosRGB( in vec3 value ) {
+    return mix( pow( value, vec3( 0.41666 ) ) * 1.055 - vec3( 0.055 ), value * 12.92, vec3( lessThanEqual( value, vec3( 0.0031308 ) ) ) );
+}
+
+vec4 RGBEToLinear( in vec4 value ) {
+    return vec4( value.rgb * exp2( value.a * 255.0 - 128.0 ), 1.0 );
+}
+
+vec4 LinearToRGBE( in vec4 value ) {
+    float maxComponent = max( max( value.r, value.g ), value.b );
+    float fExp = clamp( ceil( log2( maxComponent ) ), -128.0, 127.0 );
+    return vec4( value.rgb / exp2( fExp ), ( fExp + 128.0 ) / 255.0 );
+//  return vec4( value.brg, ( 3.0 + 128.0 ) / 256.0 );
+}
+
+// reference: http://iwasbeingirony.blogspot.ca/2010/06/difference-between-rgbm-and-rgbd.html
+vec4 RGBMToLinear( in vec4 value, in float maxRange ) {
+    return vec4( value.rgb * value.a * maxRange, 1.0 );
+}
+
+vec4 LinearToRGBM( in vec4 value, in float maxRange ) {
+    float maxRGB = max( value.r, max( value.g, value.b ) );
+    float M = clamp( maxRGB / maxRange, 0.0, 1.0 );
+    M = ceil( M * 255.0 ) / 255.0;
+    return vec4( value.rgb / ( M * maxRange ), M );
+}
+
+// reference: http://iwasbeingirony.blogspot.ca/2010/06/difference-between-rgbm-and-rgbd.html
+vec4 RGBDToLinear( in vec4 value, in float maxRange ) {
+    return vec4( value.rgb * ( ( maxRange / 255.0 ) / value.a ), 1.0 );
+}
+
+vec4 LinearToRGBD( in vec4 value, in float maxRange ) {
+    float maxRGB = max( value.r, max( value.g, value.b ) );
+    float D = max( maxRange / maxRGB, 1.0 );
+    D = min( floor( D ) / 255.0, 1.0 );
+    return vec4( value.rgb * ( D * ( 255.0 / maxRange ) ), D );
+}
+
+// LogLuv reference: http://graphicrants.blogspot.ca/2009/04/rgbm-color-encoding.html
+
+// M matrix, for encoding
+const mat3 cLogLuvM = mat3( 0.2209, 0.3390, 0.4184, 0.1138, 0.6780, 0.7319, 0.0102, 0.1130, 0.2969 );
+vec4 LinearToLogLuv( in vec4 value )  {
+    vec3 Xp_Y_XYZp = cLogLuvM * value.rgb;
+    Xp_Y_XYZp = max( Xp_Y_XYZp, vec3( 1e-6, 1e-6, 1e-6 ) );
+    vec4 vResult;
+    vResult.xy = Xp_Y_XYZp.xy / Xp_Y_XYZp.z;
+    float Le = 2.0 * log2(Xp_Y_XYZp.y) + 127.0;
+    vResult.w = fract( Le );
+    vResult.z = ( Le - ( floor( vResult.w * 255.0 ) ) / 255.0 ) / 255.0;
+    return vResult;
+}
+
+// Inverse M matrix, for decoding
+const mat3 cLogLuvInverseM = mat3( 6.0014, -2.7008, -1.7996, -1.3320, 3.1029, -5.7721, 0.3008, -1.0882, 5.6268 );
+vec4 LogLuvToLinear( in vec4 value ) {
+    float Le = value.z * 255.0 + value.w;
+    vec3 Xp_Y_XYZp;
+    Xp_Y_XYZp.y = exp2( ( Le - 127.0 ) / 2.0 );
+    Xp_Y_XYZp.z = Xp_Y_XYZp.y / value.y;
+    Xp_Y_XYZp.x = value.x * Xp_Y_XYZp.z;
+    vec3 vRGB = cLogLuvInverseM * Xp_Y_XYZp.rgb;
+    return vec4( max( vRGB, 0.0 ), 1.0 );
+}
+
+// --------------------------------------------------------------------------------------------
+// ------------------------------------------ encodings ------------------------------------------
+// --------------------------------------------------------------------------------------------
+vec4 mapTexelToLinear(vec4 value) {
+    return sRGBToLinear(value);
+}
+
+vec4 matcapTexelToLinear(vec4 value) {
+    return sRGBToLinear(value);
+}
+
+vec4 envMapTexelToLinear(vec4 value) {
+    return sRGBToLinear(value);
+}
+
+vec4 emissiveMapTexelToLinear(vec4 value) {
+    return sRGBToLinear(value);
+}
+
+vec4 linearToOutputTexel(vec4 value) {
+    return LinearToGamma(value, 2.2);
+}
+
+// #ifdef PHYSICAL
+//     #define REFLECTIVITY
+//     #define CLEARCOAT
+//     #define TRANSPARENCY
+// #endif
+
+uniform vec4 _Color; //diffuse
+#ifdef USE_EMISSION
+    uniform vec4 _EmissionColor; //emissive
+#endif
+uniform float _GlossMapScale; //roughness
+uniform float _Metallic; //metalness
+// uniform float opacity;
+
+#ifdef TRANSPARENCY
+    uniform float _transparency;
+#endif
+
+#ifdef REFLECTIVITY
+    uniform float reflectivity;
+#endif
+
+#ifdef CLEARCOAT
+    uniform float clearcoat;
+    uniform float clearcoatRoughness;
+#endif
+
+#ifdef USE_SHEEN
+    uniform vec3 sheen;
+#endif
+
+varying vec3 vViewPosition;
+
+#ifndef FLAT_SHADED
+
+    varying vec3 vNormal;
+
+    #ifdef USE_TANGENT
+
+        varying vec3 vTangent;
+        varying vec3 vBitangent;
+
+    #endif
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ packing ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+vec3 packNormalToRGB( const in vec3 normal ) {
+    return normalize( normal ) * 0.5 + 0.5;
+}
+
+vec3 unpackRGBToNormal( const in vec3 rgb ) {
+    return 2.0 * rgb.xyz - 1.0;
+}
+
+const float PackUpscale = 256. / 255.; // fraction -> 0..1 (including 1)
+const float UnpackDownscale = 255. / 256.; // 0..1 -> fraction (excluding 1)
+
+const vec3 PackFactors = vec3( 256. * 256. * 256., 256. * 256.,  256. );
+const vec4 UnpackFactors = UnpackDownscale / vec4( PackFactors, 1. );
+
+const float ShiftRight8 = 1. / 256.;
+
+vec4 packDepthToRGBA( const in float v ) {
+    vec4 r = vec4( fract( v * PackFactors ), v );
+    r.yzw -= r.xyz * ShiftRight8; // tidy overflow
+    return r * PackUpscale;
+}
+
+float unpackRGBAToDepth( const in vec4 v ) {
+    return dot( v, UnpackFactors );
+}
+
+vec4 encodeHalfRGBA ( vec2 v ) {
+    vec4 encoded = vec4( 0.0 );
+    const vec2 offset = vec2( 1.0 / 255.0, 0.0 );
+
+    encoded.xy = vec2( v.x, fract( v.x * 255.0 ) );
+    encoded.xy = encoded.xy - ( encoded.yy * offset );
+
+    encoded.zw = vec2( v.y, fract( v.y * 255.0 ) );
+    encoded.zw = encoded.zw - ( encoded.ww * offset );
+
+    return encoded;
+}
+
+vec2 decodeHalfRGBA( vec4 v ) {
+    return vec2( v.x + ( v.y / 255.0 ), v.z + ( v.w / 255.0 ) );
+}
+
+// NOTE: viewZ/eyeZ is < 0 when in front of the camera per OpenGL conventions
+
+float viewZToOrthographicDepth( const in float viewZ, const in float near, const in float far ) {
+    return ( viewZ + near ) / ( near - far );
+}
+float orthographicDepthToViewZ( const in float linearClipZ, const in float near, const in float far ) {
+    return linearClipZ * ( near - far ) - near;
+}
+
+float viewZToPerspectiveDepth( const in float viewZ, const in float near, const in float far ) {
+    return (( near + viewZ ) * far ) / (( far - near ) * viewZ );
+}
+float perspectiveDepthToViewZ( const in float invClipZ, const in float near, const in float far ) {
+    return ( near * far ) / ( ( far - near ) * invClipZ - far );
+}
+
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ dithering_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef DITHERING
+
+    // based on https://www.shadertoy.com/view/MslGR8
+    vec3 dithering( vec3 color ) {
+        //Calculate grid position
+        float grid_position = rand( gl_FragCoord.xy );
+
+        //Shift the individual colors differently, thus making it even harder to see the dithering pattern
+        vec3 dither_shift_RGB = vec3( 0.25 / 255.0, -0.25 / 255.0, 0.25 / 255.0 );
+
+        //modify shift acording to grid position.
+        dither_shift_RGB = mix( 2.0 * dither_shift_RGB, -2.0 * dither_shift_RGB, grid_position );
+
+        //shift the color by dither_shift
+        return color + dither_shift_RGB;
+    }
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ color_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_COLOR
+
+    varying vec3 vColor;
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ uv_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_UV
+
+    varying vec2 vUv;
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ uv2_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#if defined( USE_LIGHTMAP ) || defined( USE_AOMAP )
+
+    varying vec2 vUv2;
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ map_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_MAP
+
+    uniform sampler2D _MainTex; //map
+    uniform vec4 _MainTex_ST;
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ alphamap_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_ALPHAMAP
+
+    uniform sampler2D alphaMap;
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ aomap_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_AOMAP
+
+    uniform sampler2D _OcclusionMap; //aoMap
+    uniform vec4 _OcclusionMap_ST;
+    uniform float _OcclusionStrength; //aoMapIntensity
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ lightmap_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_LIGHTMAP
+
+    uniform sampler2D lightMap;
+    uniform float lightMapIntensity;
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ emissivemap_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_EMISSIVEMAP
+
+    uniform sampler2D _EmissionMap; //emissiveMap
+    uniform vec4 _EmissionMap_ST;
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ bsdfs ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+
+// Analytical approximation of the DFG LUT, one half of the
+// split-sum approximation used in indirect specular lighting.
+// via 'environmentBRDF' from "Physically Based Shading on Mobile"
+// https://www.unrealengine.com/blog/physically-based-shading-on-mobile - environmentBRDF for GGX on mobile
+vec2 integrateSpecularBRDF( const in float dotNV, const in float roughness ) {
+    const vec4 c0 = vec4( - 1, - 0.0275, - 0.572, 0.022 );
+
+    const vec4 c1 = vec4( 1, 0.0425, 1.04, - 0.04 );
+
+    vec4 r = roughness * c0 + c1;
+
+    float a004 = min( r.x * r.x, exp2( - 9.28 * dotNV ) ) * r.x + r.y;
+
+    return vec2( -1.04, 1.04 ) * a004 + r.zw;
+
+}
+
+float punctualLightIntensityToIrradianceFactor( const in float lightDistance, const in float cutoffDistance, const in float decayExponent ) {
+
+#if defined ( PHYSICALLY_CORRECT_LIGHTS )
+
+    // based upon Frostbite 3 Moving to Physically-based Rendering
+    // page 32, equation 26: E[window1]
+    // https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+    // this is intended to be used on spot and point lights who are represented as luminous intensity
+    // but who must be converted to luminous irradiance for surface lighting calculation
+    float distanceFalloff = 1.0 / max( pow( lightDistance, decayExponent ), 0.01 );
+
+    if( cutoffDistance > 0.0 ) {
+
+        distanceFalloff *= pow2( saturate( 1.0 - pow4( lightDistance / cutoffDistance ) ) );
+
+    }
+
+    return distanceFalloff;
+
+#else
+
+    if( cutoffDistance > 0.0 && decayExponent > 0.0 ) {
+
+        return pow( saturate( -lightDistance / cutoffDistance + 1.0 ), decayExponent );
+
+    }
+
+    return 1.0;
+
+#endif
+
+}
+
+vec3 BRDF_Diffuse_Lambert( const in vec3 diffuseColor ) {
+
+    return RECIPROCAL_PI * diffuseColor;
+
+} // validated
+
+vec3 F_Schlick( const in vec3 specularColor, const in float dotLH ) {
+
+    // Original approximation by Christophe Schlick '94
+    // float fresnel = pow( 1.0 - dotLH, 5.0 );
+
+    // Optimized variant (presented by Epic at SIGGRAPH '13)
+    // https://cdn2.unrealengine.com/Resources/files/2013SiggraphPresentationsNotes-26915738.pdf
+    float fresnel = exp2( ( -5.55473 * dotLH - 6.98316 ) * dotLH );
+
+    return ( 1.0 - specularColor ) * fresnel + specularColor;
+
+} // validated
+
+vec3 F_Schlick_RoughnessDependent( const in vec3 F0, const in float dotNV, const in float roughness ) {
+
+    // See F_Schlick
+    float fresnel = exp2( ( -5.55473 * dotNV - 6.98316 ) * dotNV );
+    vec3 Fr = max( vec3( 1.0 - roughness ), F0 ) - F0;
+
+    return Fr * fresnel + F0;
+
+}
+
+
+// Microfacet Models for Refraction through Rough Surfaces - equation (34)
+// http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
+// alpha is "roughness squared" in Disney’s reparameterization
+float G_GGX_Smith( const in float alpha, const in float dotNL, const in float dotNV ) {
+
+    // geometry term (normalized) = G(l)⋅G(v) / 4(n⋅l)(n⋅v)
+    // also see #12151
+
+    float a2 = pow2( alpha );
+
+    float gl = dotNL + sqrt( a2 + ( 1.0 - a2 ) * pow2( dotNL ) );
+    float gv = dotNV + sqrt( a2 + ( 1.0 - a2 ) * pow2( dotNV ) );
+
+    return 1.0 / ( gl * gv );
+
+} // validated
+
+// Moving Frostbite to Physically Based Rendering 3.0 - page 12, listing 2
+// https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+float G_GGX_SmithCorrelated( const in float alpha, const in float dotNL, const in float dotNV ) {
+
+    float a2 = pow2( alpha );
+
+    // dotNL and dotNV are explicitly swapped. This is not a mistake.
+    float gv = dotNL * sqrt( a2 + ( 1.0 - a2 ) * pow2( dotNV ) );
+    float gl = dotNV * sqrt( a2 + ( 1.0 - a2 ) * pow2( dotNL ) );
+
+    return 0.5 / max( gv + gl, EPSILON );
+
+}
+
+// Microfacet Models for Refraction through Rough Surfaces - equation (33)
+// http://graphicrants.blogspot.com/2013/08/specular-brdf-reference.html
+// alpha is "roughness squared" in Disney’s reparameterization
+float D_GGX( const in float alpha, const in float dotNH ) {
+
+    float a2 = pow2( alpha );
+
+    float denom = pow2( dotNH ) * ( a2 - 1.0 ) + 1.0; // avoid alpha = 0 with dotNH = 1
+
+    return RECIPROCAL_PI * a2 / pow2( denom );
+
+}
+
+// GGX Distribution, Schlick Fresnel, GGX-Smith Visibility
+vec3 BRDF_Specular_GGX( const in IncidentLight incidentLight, const in vec3 viewDir, const in vec3 normal, const in vec3 specularColor, const in float roughness ) {
+
+    float alpha = pow2( roughness ); // UE4's roughness
+
+    vec3 halfDir = normalize( incidentLight.direction + viewDir );
+
+    float dotNL = saturate( dot( normal, incidentLight.direction ) );
+    float dotNV = saturate( dot( normal, viewDir ) );
+    float dotNH = saturate( dot( normal, halfDir ) );
+    float dotLH = saturate( dot( incidentLight.direction, halfDir ) );
+
+    vec3 F = F_Schlick( specularColor, dotLH );
+
+    float G = G_GGX_SmithCorrelated( alpha, dotNL, dotNV );
+
+    float D = D_GGX( alpha, dotNH );
+
+    return F * ( G * D );
+
+} // validated
+
+// Rect Area Light
+
+// Real-Time Polygonal-Light Shading with Linearly Transformed Cosines
+// by Eric Heitz, Jonathan Dupuy, Stephen Hill and David Neubelt
+// code: https://github.com/selfshadow/ltc_code/
+
+vec2 LTC_Uv( const in vec3 N, const in vec3 V, const in float roughness ) {
+
+    const float LUT_SIZE  = 64.0;
+    const float LUT_SCALE = ( LUT_SIZE - 1.0 ) / LUT_SIZE;
+    const float LUT_BIAS  = 0.5 / LUT_SIZE;
+
+    float dotNV = saturate( dot( N, V ) );
+
+    // texture parameterized by sqrt( GGX alpha ) and sqrt( 1 - cos( theta ) )
+    vec2 uv = vec2( roughness, sqrt( 1.0 - dotNV ) );
+
+    uv = uv * LUT_SCALE + LUT_BIAS;
+
+    return uv;
+
+}
+
+float LTC_ClippedSphereFormFactor( const in vec3 f ) {
+
+    // Real-Time Area Lighting: a Journey from Research to Production (p.102)
+    // An approximation of the form factor of a horizon-clipped rectangle.
+
+    float l = length( f );
+
+    return max( ( l * l + f.z ) / ( l + 1.0 ), 0.0 );
+
+}
+
+vec3 LTC_EdgeVectorFormFactor( const in vec3 v1, const in vec3 v2 ) {
+
+    float x = dot( v1, v2 );
+
+    float y = abs( x );
+
+    // rational polynomial approximation to theta / sin( theta ) / 2PI
+    float a = 0.8543985 + ( 0.4965155 + 0.0145206 * y ) * y;
+    float b = 3.4175940 + ( 4.1616724 + y ) * y;
+    float v = a / b;
+
+    float theta_sintheta = ( x > 0.0 ) ? v : 0.5 * inversesqrt( max( 1.0 - x * x, 1e-7 ) ) - v;
+
+    return cross( v1, v2 ) * theta_sintheta;
+
+}
+
+vec3 LTC_Evaluate( const in vec3 N, const in vec3 V, const in vec3 P, const in mat3 mInv, const in vec3 rectCoords[ 4 ] ) {
+
+    // bail if point is on back side of plane of light
+    // assumes ccw winding order of light vertices
+    vec3 v1 = rectCoords[ 1 ] - rectCoords[ 0 ];
+    vec3 v2 = rectCoords[ 3 ] - rectCoords[ 0 ];
+    vec3 lightNormal = cross( v1, v2 );
+
+    if( dot( lightNormal, P - rectCoords[ 0 ] ) < 0.0 ) return vec3( 0.0 );
+
+    // construct orthonormal basis around N
+    vec3 T1, T2;
+    T1 = normalize( V - N * dot( V, N ) );
+    T2 = - cross( N, T1 ); // negated from paper; possibly due to a different handedness of world coordinate system
+
+    // compute transform
+    mat3 mat = mInv * transposeMat3( mat3( T1, T2, N ) );
+
+    // transform rect
+    vec3 coords[ 4 ];
+    coords[ 0 ] = mat * ( rectCoords[ 0 ] - P );
+    coords[ 1 ] = mat * ( rectCoords[ 1 ] - P );
+    coords[ 2 ] = mat * ( rectCoords[ 2 ] - P );
+    coords[ 3 ] = mat * ( rectCoords[ 3 ] - P );
+
+    // project rect onto sphere
+    coords[ 0 ] = normalize( coords[ 0 ] );
+    coords[ 1 ] = normalize( coords[ 1 ] );
+    coords[ 2 ] = normalize( coords[ 2 ] );
+    coords[ 3 ] = normalize( coords[ 3 ] );
+
+    // calculate vector form factor
+    vec3 vectorFormFactor = vec3( 0.0 );
+    vectorFormFactor += LTC_EdgeVectorFormFactor( coords[ 0 ], coords[ 1 ] );
+    vectorFormFactor += LTC_EdgeVectorFormFactor( coords[ 1 ], coords[ 2 ] );
+    vectorFormFactor += LTC_EdgeVectorFormFactor( coords[ 2 ], coords[ 3 ] );
+    vectorFormFactor += LTC_EdgeVectorFormFactor( coords[ 3 ], coords[ 0 ] );
+
+    // adjust for horizon clipping
+    float result = LTC_ClippedSphereFormFactor( vectorFormFactor );
+
+/*
+    // alternate method of adjusting for horizon clipping (see referece)
+    // refactoring required
+    float len = length( vectorFormFactor );
+    float z = vectorFormFactor.z / len;
+
+    const float LUT_SIZE  = 64.0;
+    const float LUT_SCALE = ( LUT_SIZE - 1.0 ) / LUT_SIZE;
+    const float LUT_BIAS  = 0.5 / LUT_SIZE;
+
+    // tabulated horizon-clipped sphere, apparently...
+    vec2 uv = vec2( z * 0.5 + 0.5, len );
+    uv = uv * LUT_SCALE + LUT_BIAS;
+
+    float scale = texture2D( ltc_2, uv ).w;
+
+    float result = len * scale;
+*/
+
+    return vec3( result );
+
+}
+
+// End Rect Area Light
+
+// ref: https://www.unrealengine.com/blog/physically-based-shading-on-mobile - environmentBRDF for GGX on mobile
+vec3 BRDF_Specular_GGX_Environment( const in vec3 viewDir, const in vec3 normal, const in vec3 specularColor, const in float roughness ) {
+
+    float dotNV = saturate( dot( normal, viewDir ) );
+
+    vec2 brdf = integrateSpecularBRDF( dotNV, roughness );
+
+    return specularColor * brdf.x + brdf.y;
+
+} // validated
+
+// Fdez-Agüera's "Multiple-Scattering Microfacet Model for Real-Time Image Based Lighting"
+// Approximates multiscattering in order to preserve energy.
+// http://www.jcgt.org/published/0008/01/03/
+void BRDF_Specular_Multiscattering_Environment( const in GeometricContext geometry, const in vec3 specularColor, const in float roughness, inout vec3 singleScatter, inout vec3 multiScatter ) {
+
+    float dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );
+
+    vec3 F = F_Schlick_RoughnessDependent( specularColor, dotNV, roughness );
+    vec2 brdf = integrateSpecularBRDF( dotNV, roughness );
+    vec3 FssEss = F * brdf.x + brdf.y;
+
+    float Ess = brdf.x + brdf.y;
+    float Ems = 1.0 - Ess;
+
+    vec3 Favg = specularColor + ( 1.0 - specularColor ) * 0.047619; // 1/21
+    vec3 Fms = FssEss * Favg / ( 1.0 - Ems * Favg );
+
+    singleScatter += FssEss;
+    multiScatter += Fms * Ems;
+
+}
+
+float G_BlinnPhong_Implicit( /* const in float dotNL, const in float dotNV */ ) {
+
+    // geometry term is (n dot l)(n dot v) / 4(n dot l)(n dot v)
+    return 0.25;
+
+}
+
+float D_BlinnPhong( const in float shininess, const in float dotNH ) {
+
+    return RECIPROCAL_PI * ( shininess * 0.5 + 1.0 ) * pow( dotNH, shininess );
+
+}
+
+vec3 BRDF_Specular_BlinnPhong( const in IncidentLight incidentLight, const in GeometricContext geometry, const in vec3 specularColor, const in float shininess ) {
+
+    vec3 halfDir = normalize( incidentLight.direction + geometry.viewDir );
+
+    //float dotNL = saturate( dot( geometry.normal, incidentLight.direction ) );
+    //float dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );
+    float dotNH = saturate( dot( geometry.normal, halfDir ) );
+    float dotLH = saturate( dot( incidentLight.direction, halfDir ) );
+
+    vec3 F = F_Schlick( specularColor, dotLH );
+
+    float G = G_BlinnPhong_Implicit( /* dotNL, dotNV */ );
+
+    float D = D_BlinnPhong( shininess, dotNH );
+
+    return F * ( G * D );
+
+} // validated
+
+// source: http://simonstechblog.blogspot.ca/2011/12/microfacet-brdf.html
+float GGXRoughnessToBlinnExponent( const in float ggxRoughness ) {
+    return ( 2.0 / pow2( ggxRoughness + 0.0001 ) - 2.0 );
+}
+
+float BlinnExponentToGGXRoughness( const in float blinnExponent ) {
+    return sqrt( 2.0 / ( blinnExponent + 2.0 ) );
+}
+
+#if defined( USE_SHEEN )
+
+// https://github.com/google/filament/blob/master/shaders/src/brdf.fs#L94
+float D_Charlie(float roughness, float NoH) {
+    // Estevez and Kulla 2017, "Production Friendly Microfacet Sheen BRDF"
+    float invAlpha  = 1.0 / roughness;
+    float cos2h = NoH * NoH;
+    float sin2h = max(1.0 - cos2h, 0.0078125); // 2^(-14/2), so sin2h^2 > 0 in fp16
+    return (2.0 + invAlpha) * pow(sin2h, invAlpha * 0.5) / (2.0 * PI);
+}
+
+// https://github.com/google/filament/blob/master/shaders/src/brdf.fs#L136
+float V_Neubelt(float NoV, float NoL) {
+    // Neubelt and Pettineo 2013, "Crafting a Next-gen Material Pipeline for The Order: 1886"
+    return saturate(1.0 / (4.0 * (NoL + NoV - NoL * NoV)));
+}
+
+vec3 BRDF_Specular_Sheen( const in float roughness, const in vec3 L, const in GeometricContext geometry, vec3 specularColor ) {
+
+    vec3 N = geometry.normal;
+    vec3 V = geometry.viewDir;
+
+    vec3 H = normalize( V + L );
+    float dotNH = saturate( dot( N, H ) );
+
+    return specularColor * D_Charlie( roughness, dotNH ) * V_Neubelt( dot(N, V), dot(N, L) );
+
+}
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ cube_uv_reflection_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef ENVMAP_TYPE_CUBE_UV
+
+#define cubeUV_textureSize (1024.0)
+
+int getFaceFromDirection(vec3 direction) {
+    vec3 absDirection = abs(direction);
+    int face = -1;
+    if( absDirection.x > absDirection.z ) {
+        if(absDirection.x > absDirection.y )
+            face = direction.x > 0.0 ? 0 : 3;
+        else
+            face = direction.y > 0.0 ? 1 : 4;
+    }
+    else {
+        if(absDirection.z > absDirection.y )
+            face = direction.z > 0.0 ? 2 : 5;
+        else
+            face = direction.y > 0.0 ? 1 : 4;
+    }
+    return face;
+}
+#define cubeUV_maxLods1  (log2(cubeUV_textureSize*0.25) - 1.0)
+#define cubeUV_rangeClamp (exp2((6.0 - 1.0) * 2.0))
+
+vec2 MipLevelInfo( vec3 vec, float roughnessLevel, float roughness ) {
+    float scale = exp2(cubeUV_maxLods1 - roughnessLevel);
+    float dxRoughness = dFdx(roughness);
+    float dyRoughness = dFdy(roughness);
+    vec3 dx = dFdx( vec * scale * dxRoughness );
+    vec3 dy = dFdy( vec * scale * dyRoughness );
+    float d = max( dot( dx, dx ), dot( dy, dy ) );
+    // Clamp the value to the max mip level counts. hard coded to 6 mips
+    d = clamp(d, 1.0, cubeUV_rangeClamp);
+    float mipLevel = 0.5 * log2(d);
+    return vec2(floor(mipLevel), fract(mipLevel));
+}
+
+#define cubeUV_maxLods2 (log2(cubeUV_textureSize*0.25) - 2.0)
+#define cubeUV_rcpTextureSize (1.0 / cubeUV_textureSize)
+
+vec2 getCubeUV(vec3 direction, float roughnessLevel, float mipLevel) {
+    mipLevel = roughnessLevel > cubeUV_maxLods2 - 3.0 ? 0.0 : mipLevel;
+    float a = 16.0 * cubeUV_rcpTextureSize;
+
+    vec2 exp2_packed = exp2( vec2( roughnessLevel, mipLevel ) );
+    vec2 rcp_exp2_packed = vec2( 1.0 ) / exp2_packed;
+    // float powScale = exp2(roughnessLevel + mipLevel);
+    float powScale = exp2_packed.x * exp2_packed.y;
+    // float scale =  1.0 / exp2(roughnessLevel + 2.0 + mipLevel);
+    float scale = rcp_exp2_packed.x * rcp_exp2_packed.y * 0.25;
+    // float mipOffset = 0.75*(1.0 - 1.0/exp2(mipLevel))/exp2(roughnessLevel);
+    float mipOffset = 0.75*(1.0 - rcp_exp2_packed.y) * rcp_exp2_packed.x;
+
+    bool bRes = mipLevel == 0.0;
+    scale =  bRes && (scale < a) ? a : scale;
+
+    vec3 r;
+    vec2 offset;
+    int face = getFaceFromDirection(direction);
+
+    float rcpPowScale = 1.0 / powScale;
+
+    if( face == 0) {
+        r = vec3(direction.x, -direction.z, direction.y);
+        offset = vec2(0.0+mipOffset,0.75 * rcpPowScale);
+        offset.y = bRes && (offset.y < 2.0*a) ? a : offset.y;
+    }
+    else if( face == 1) {
+        r = vec3(direction.y, direction.x, direction.z);
+        offset = vec2(scale+mipOffset, 0.75 * rcpPowScale);
+        offset.y = bRes && (offset.y < 2.0*a) ? a : offset.y;
+    }
+    else if( face == 2) {
+        r = vec3(direction.z, direction.x, direction.y);
+        offset = vec2(2.0*scale+mipOffset, 0.75 * rcpPowScale);
+        offset.y = bRes && (offset.y < 2.0*a) ? a : offset.y;
+    }
+    else if( face == 3) {
+        r = vec3(direction.x, direction.z, direction.y);
+        offset = vec2(0.0+mipOffset,0.5 * rcpPowScale);
+        offset.y = bRes && (offset.y < 2.0*a) ? 0.0 : offset.y;
+    }
+    else if( face == 4) {
+        r = vec3(direction.y, direction.x, -direction.z);
+        offset = vec2(scale+mipOffset, 0.5 * rcpPowScale);
+        offset.y = bRes && (offset.y < 2.0*a) ? 0.0 : offset.y;
+    }
+    else {
+        r = vec3(direction.z, -direction.x, direction.y);
+        offset = vec2(2.0*scale+mipOffset, 0.5 * rcpPowScale);
+        offset.y = bRes && (offset.y < 2.0*a) ? 0.0 : offset.y;
+    }
+    r = normalize(r);
+    float texelOffset = 0.5 * cubeUV_rcpTextureSize;
+    vec2 s = ( r.yz / abs( r.x ) + vec2( 1.0 ) ) * 0.5;
+    vec2 base = offset + vec2( texelOffset );
+    return base + s * ( scale - 2.0 * texelOffset );
+}
+
+#define cubeUV_maxLods3 (log2(cubeUV_textureSize*0.25) - 3.0)
+
+vec4 textureCubeUV( sampler2D envMap, vec3 reflectedDirection, float roughness ) {
+    float roughnessVal = roughness* cubeUV_maxLods3;
+    float r1 = floor(roughnessVal);
+    float r2 = r1 + 1.0;
+    float t = fract(roughnessVal);
+    vec2 mipInfo = MipLevelInfo(reflectedDirection, r1, roughness);
+    float s = mipInfo.y;
+    float level0 = mipInfo.x;
+    float level1 = level0 + 1.0;
+    level1 = level1 > 5.0 ? 5.0 : level1;
+
+    // round to nearest mipmap if we are not interpolating.
+    level0 += min( floor( s + 0.5 ), 5.0 );
+
+    // Tri linear interpolation.
+    vec2 uv_10 = getCubeUV(reflectedDirection, r1, level0);
+    vec4 color10 = envMapTexelToLinear(texture2D(envMap, uv_10));
+
+    vec2 uv_20 = getCubeUV(reflectedDirection, r2, level0);
+    vec4 color20 = envMapTexelToLinear(texture2D(envMap, uv_20));
+
+    vec4 result = mix(color10, color20, t);
+
+    return vec4(result.rgb, 1.0);
+}
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ envmap_common_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_ENVMAP
+
+    // uniform float envMapIntensity;
+    #define envMapIntensity 1.0
+    // uniform float flipEnvMap;
+    #define flipEnvMap 1.0
+    // uniform int maxMipLevel;
+    #define maxMipLevel 7
+
+    #ifdef ENVMAP_TYPE_CUBE
+        uniform samplerCube t_reflection_prob0_cube; //envMap
+    #else
+        uniform sampler2D envMap;
+    #endif
+    
+#endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ envmap_physical_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#if defined( USE_ENVMAP )
+
+    vec3 getLightProbeIndirectIrradiance( /*const in SpecularLightProbe specularLightProbe,*/ const in GeometricContext geometry, const in int maxMIPLevel ) {
+
+        vec3 worldNormal = inverseTransformDirection( geometry.normal, mat_MatrixView );
+
+        #ifdef ENVMAP_TYPE_CUBE
+
+            vec3 queryVec = vec3( flipEnvMap * worldNormal.x, worldNormal.yz );
+
+            // TODO: replace with properly filtered cubemaps and access the irradiance LOD level, be it the last LOD level
+            // of a specular cubemap, or just the default level of a specially created irradiance cubemap.
+
+            #ifdef TEXTURE_LOD_EXT
+
+                vec4 envMapColor = textureCubeLodEXT( t_reflection_prob0_cube, queryVec, float( maxMIPLevel ) );
+
+            #else
+
+                // force the bias high to get the last LOD level as it is the most blurred.
+                vec4 envMapColor = textureCube( t_reflection_prob0_cube, queryVec, float( maxMIPLevel ) );
+
+            #endif
+
+            envMapColor.rgb = envMapTexelToLinear( envMapColor ).rgb;
+
+        #elif defined( ENVMAP_TYPE_CUBE_UV )
+
+            vec3 queryVec = vec3( flipEnvMap * worldNormal.x, worldNormal.yz );
+            vec4 envMapColor = textureCubeUV( envMap, queryVec, 1.0 );
+
+        #else
+
+            vec4 envMapColor = vec4( 0.0 );
+
+        #endif
+
+        return PI * envMapColor.rgb * envMapIntensity;
+
+    }
+
+    // Trowbridge-Reitz distribution to Mip level, following the logic of http://casual-effects.blogspot.ca/2011/08/plausible-environment-lighting-in-two.html
+    float getSpecularMIPLevel( const in float roughness, const in int maxMIPLevel ) {
+
+        float maxMIPLevelScalar = float( maxMIPLevel );
+
+        float sigma = PI * roughness * roughness / ( 1.0 + roughness );
+        float desiredMIPLevel = maxMIPLevelScalar + log2( sigma );
+
+        // clamp to allowable LOD ranges.
+        return clamp( desiredMIPLevel, 0.0, maxMIPLevelScalar );
+
+    }
+
+    vec3 getLightProbeIndirectRadiance( /*const in SpecularLightProbe specularLightProbe,*/ const in vec3 viewDir, const in vec3 normal, const in float roughness, const in int maxMIPLevel ) {
+
+        vec3 reflectVec = reflect( -viewDir, normal );
+
+        // Mixing the reflection with the normal is more accurate and keeps rough objects from gathering light from behind their tangent plane.
+        reflectVec = normalize( mix( reflectVec, normal, roughness * roughness) );
+
+        reflectVec = inverseTransformDirection( reflectVec, mat_MatrixView );
+
+        float specularMIPLevel = getSpecularMIPLevel( roughness, maxMIPLevel );
+
+        #ifdef ENVMAP_TYPE_CUBE
+
+            vec3 queryReflectVec = vec3( flipEnvMap * reflectVec.x, reflectVec.yz );
+
+            #ifdef TEXTURE_LOD_EXT
+
+                vec4 envMapColor = textureCubeLodEXT( t_reflection_prob0_cube, queryReflectVec, specularMIPLevel );
+
+            #else
+
+                vec4 envMapColor = textureCube( t_reflection_prob0_cube, queryReflectVec, specularMIPLevel );
+
+            #endif
+
+            envMapColor.rgb = envMapTexelToLinear( envMapColor ).rgb;
+
+        #elif defined( ENVMAP_TYPE_CUBE_UV )
+
+            vec3 queryReflectVec = vec3( flipEnvMap * reflectVec.x, reflectVec.yz );
+            vec4 envMapColor = textureCubeUV( envMap, queryReflectVec, roughness );
+
+        #elif defined( ENVMAP_TYPE_EQUIREC )
+
+            vec2 sampleUV;
+            sampleUV.y = asin( clamp( reflectVec.y, - 1.0, 1.0 ) ) * RECIPROCAL_PI + 0.5;
+            sampleUV.x = atan( reflectVec.z, reflectVec.x ) * RECIPROCAL_PI2 + 0.5;
+
+            #ifdef TEXTURE_LOD_EXT
+
+                vec4 envMapColor = texture2DLodEXT( t_reflection_prob0_cube, sampleUV, specularMIPLevel );
+
+            #else
+
+                vec4 envMapColor = texture2D( t_reflection_prob0_cube, sampleUV, specularMIPLevel );
+
+            #endif
+
+            envMapColor.rgb = envMapTexelToLinear( envMapColor ).rgb;
+
+        #elif defined( ENVMAP_TYPE_SPHERE )
+
+            vec3 reflectView = normalize( ( mat_MatrixView * vec4( reflectVec, 0.0 ) ).xyz + vec3( 0.0,0.0,1.0 ) );
+
+            #ifdef TEXTURE_LOD_EXT
+
+                vec4 envMapColor = texture2DLodEXT( t_reflection_prob0_cube, reflectView.xy * 0.5 + 0.5, specularMIPLevel );
+
+            #else
+
+                vec4 envMapColor = texture2D( t_reflection_prob0_cube, reflectView.xy * 0.5 + 0.5, specularMIPLevel );
+
+            #endif
+
+            envMapColor.rgb = envMapTexelToLinear( envMapColor ).rgb;
+
+        #endif
+
+        return envMapColor.rgb * envMapIntensity;
+
+    }
+
+    #ifdef ENVMAP_MODE_REFRACTION
+        uniform float refractionRatio;
+
+        vec3 getLightProbeRefractionColor(const in vec3 viewDir, const in vec3 normal, const in float roughness, const in int maxMIPLevel )
+        {
+            vec3 reflectVec = refract( -viewDir, normal, refractionRatio );
+
+            reflectVec = inverseTransformDirection( reflectVec, mat_MatrixView );
+            float specularMIPLevel = getSpecularMIPLevel( roughness, maxMIPLevel );
+
+            // ENVMAP_TYPE_CUBE
+            vec3 queryReflectVec = vec3( flipEnvMap * reflectVec.x, reflectVec.yz );
+
+            #ifdef TEXTURE_LOD_EXT
+
+                vec4 envMapColor = textureCubeLodEXT( t_reflection_prob0_cube, queryReflectVec, specularMIPLevel );
+
+            #else
+
+                vec4 envMapColor = textureCube( t_reflection_prob0_cube, queryReflectVec, specularMIPLevel );
+
+            #endif
+
+            envMapColor.rgb = envMapTexelToLinear( envMapColor ).rgb ;
+
+            return envMapColor.rgb * envMapIntensity;
+        }
+    #endif
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ fog_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_FOG
+
+    uniform vec3 fogColor;
+    varying float fogDepth;
+
+    #ifdef FOG_EXP2
+
+        uniform float fogDensity;
+
+    #else
+
+        uniform float fogNear;
+        uniform float fogFar;
+
+    #endif
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ lights_pars_begin ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+uniform vec3 ambientLightColor;
+// uniform vec3 lightProbe[ 9 ];
+
+uniform vec4 u_sphere_harmonic[7]; // Ar, Ag, Ab, Br, Bg, Bb, C
+
+// get the irradiance (radiance convolved with cosine lobe) at the point 'normal' on the unit sphere
+// source: https://graphics.stanford.edu/papers/envmap/envmap.pdf
+vec3 shGetIrradianceAt( in vec3 normal, in vec3 shCoefficients[ 9 ] ) {
+
+    // normal is assumed to have unit length
+
+    float x = normal.x, y = normal.y, z = normal.z;
+
+    // band 0
+    vec3 result = shCoefficients[ 0 ] * 0.886227;
+
+    // band 1
+    result += shCoefficients[ 1 ] * 2.0 * 0.511664 * y;
+    result += shCoefficients[ 2 ] * 2.0 * 0.511664 * z;
+    result += shCoefficients[ 3 ] * 2.0 * 0.511664 * x;
+
+    // band 2
+    result += shCoefficients[ 4 ] * 2.0 * 0.429043 * x * y;
+    result += shCoefficients[ 5 ] * 2.0 * 0.429043 * y * z;
+    result += shCoefficients[ 6 ] * ( 0.743125 * z * z - 0.247708 );
+    result += shCoefficients[ 7 ] * 2.0 * 0.429043 * x * z;
+    result += shCoefficients[ 8 ] * 0.429043 * ( x * x - y * y );
+
+    return result;
+
+}
+
+
+// normal should be normalized, w=1.0
+// output in active color space
+vec3 ShadeSH9( in vec4 normal, in vec4 sh[ 7 ] ) {
+    vec3 res;
+    // Linear + constant polynomial terms
+    res.r = dot(sh[ 0 ],normal);
+    res.g = dot(sh[ 1 ],normal);
+    res.b = dot(sh[ 2 ],normal);
+
+    // Quadratic polynomials
+    vec3 x1, x2;
+    // 4 of the quadratic (L2) polynomials
+    vec4 vB = normal.xyzz * normal.yzzx;
+    x1.r = dot(sh[ 3 ],vB);
+    x1.g = dot(sh[ 4 ],vB);
+    x1.b = dot(sh[ 5 ],vB);
+
+    // Final (5th) quadratic (L2) polynomial
+    float vC = normal.x*normal.x - normal.y*normal.y;
+    x2 = sh[ 6 ].rgb * vC;
+
+    res += x1 + x2;
+    res *= PI; 
+    // res = LinearTosRGB( res );
+    return res;
+}
+
+vec3 getLightProbeIrradiance_Unity( const in vec4 sh[ 7 ], const in GeometricContext geometry ) {
+
+    vec3 worldNormal = inverseTransformDirection( geometry.normal, mat_MatrixView );
+
+    vec3 irradiance = ShadeSH9( vec4(worldNormal, 1.0), sh );
+
+    return irradiance;
+
+}
+
+vec3 getLightProbeIrradiance( const in vec3 lightProbe[ 9 ], const in GeometricContext geometry ) {
+
+    vec3 worldNormal = inverseTransformDirection( geometry.normal, mat_MatrixView );
+
+    vec3 irradiance = shGetIrradianceAt( worldNormal, lightProbe );
+
+    return irradiance;
+
+}
+
+vec3 getAmbientLightIrradiance( const in vec3 ambientLightColor ) {
+
+    vec3 irradiance = ambientLightColor;
+
+    #ifndef PHYSICALLY_CORRECT_LIGHTS
+
+        irradiance *= PI;
+
+    #endif
+
+    return irradiance;
+
+}
+
+#if NUM_DIR_LIGHTS > 0
+
+    struct DirectionalLight {
+        vec3 direction;
+        vec3 color;
+
+        int shadow;
+        float shadowBias;
+        float shadowRadius;
+        vec2 shadowMapSize;
+    };
+
+    // uniform DirectionalLight directionalLights[ NUM_DIR_LIGHTS ];
+    uniform vec4 u_light0_pos_world;
+    uniform vec4 u_light0_color;
+
+    void getDirectionalDirectLightIrradiance( const in DirectionalLight directionalLight, const in GeometricContext geometry, out IncidentLight directLight ) {
+
+        directLight.color = directionalLight.color;
+        directLight.direction = directionalLight.direction;
+        directLight.visible = true;
+
+    }
+
+#endif
+
+
+#if NUM_POINT_LIGHTS > 0
+
+    struct PointLight {
+        vec3 position;
+        vec3 color;
+        float distance;
+        float decay;
+
+        int shadow;
+        float shadowBias;
+        float shadowRadius;
+        vec2 shadowMapSize;
+        float shadowCameraNear;
+        float shadowCameraFar;
+    };
+
+    uniform PointLight pointLights[ NUM_POINT_LIGHTS ];
+
+    // directLight is an out parameter as having it as a return value caused compiler errors on some devices
+    void getPointDirectLightIrradiance( const in PointLight pointLight, const in GeometricContext geometry, out IncidentLight directLight ) {
+
+        vec3 lVector = pointLight.position - geometry.position;
+        directLight.direction = normalize( lVector );
+
+        float lightDistance = length( lVector );
+
+        directLight.color = pointLight.color;
+        directLight.color *= punctualLightIntensityToIrradianceFactor( lightDistance, pointLight.distance, pointLight.decay );
+        directLight.visible = ( directLight.color != vec3( 0.0 ) );
+
+    }
+
+#endif
+
+
+#if NUM_SPOT_LIGHTS > 0
+
+    struct SpotLight {
+        vec3 position;
+        vec3 direction;
+        vec3 color;
+        float distance;
+        float decay;
+        float coneCos;
+        float penumbraCos;
+
+        int shadow;
+        float shadowBias;
+        float shadowRadius;
+        vec2 shadowMapSize;
+    };
+
+    uniform SpotLight spotLights[ NUM_SPOT_LIGHTS ];
+
+    // directLight is an out parameter as having it as a return value caused compiler errors on some devices
+    void getSpotDirectLightIrradiance( const in SpotLight spotLight, const in GeometricContext geometry, out IncidentLight directLight  ) {
+
+        vec3 lVector = spotLight.position - geometry.position;
+        directLight.direction = normalize( lVector );
+
+        float lightDistance = length( lVector );
+        float angleCos = dot( directLight.direction, spotLight.direction );
+
+        if ( angleCos > spotLight.coneCos ) {
+
+            float spotEffect = smoothstep( spotLight.coneCos, spotLight.penumbraCos, angleCos );
+
+            directLight.color = spotLight.color;
+            directLight.color *= spotEffect * punctualLightIntensityToIrradianceFactor( lightDistance, spotLight.distance, spotLight.decay );
+            directLight.visible = true;
+
+        } else {
+
+            directLight.color = vec3( 0.0 );
+            directLight.visible = false;
+
+        }
+    }
+
+#endif
+
+
+#if NUM_RECT_AREA_LIGHTS > 0
+
+    struct RectAreaLight {
+        vec3 color;
+        vec3 position;
+        vec3 halfWidth;
+        vec3 halfHeight;
+    };
+
+    // Pre-computed values of LinearTransformedCosine approximation of BRDF
+    // BRDF approximation Texture is 64x64
+    uniform sampler2D ltc_1; // RGBA Float
+    uniform sampler2D ltc_2; // RGBA Float
+
+    uniform RectAreaLight rectAreaLights[ NUM_RECT_AREA_LIGHTS ];
+
+#endif
+
+
+#if NUM_HEMI_LIGHTS > 0
+
+    struct HemisphereLight {
+        vec3 direction;
+        vec3 skyColor;
+        vec3 groundColor;
+    };
+
+    uniform HemisphereLight hemisphereLights[ NUM_HEMI_LIGHTS ];
+
+    vec3 getHemisphereLightIrradiance( const in HemisphereLight hemiLight, const in GeometricContext geometry ) {
+
+        float dotNL = dot( geometry.normal, hemiLight.direction );
+        float hemiDiffuseWeight = 0.5 * dotNL + 0.5;
+
+        vec3 irradiance = mix( hemiLight.groundColor, hemiLight.skyColor, hemiDiffuseWeight );
+
+        #ifndef PHYSICALLY_CORRECT_LIGHTS
+
+            irradiance *= PI;
+
+        #endif
+
+        return irradiance;
+
+    }
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ lights_physical_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+struct PhysicalMaterial {
+
+    vec3    diffuseColor;
+    float    specularRoughness;
+    vec3    specularColor;
+
+#ifdef CLEARCOAT
+    float clearcoat;
+    float clearcoatRoughness;
+#endif
+#ifdef USE_SHEEN
+    vec3 sheenColor;
+#endif
+
+};
+
+#define MAXIMUM_SPECULAR_COEFFICIENT 0.16
+#define DEFAULT_SPECULAR_COEFFICIENT 0.04
+
+// Clear coat directional hemishperical reflectance (this approximation should be improved)
+float clearcoatDHRApprox( const in float roughness, const in float dotNL ) {
+
+    return DEFAULT_SPECULAR_COEFFICIENT + ( 1.0 - DEFAULT_SPECULAR_COEFFICIENT ) * ( pow( 1.0 - dotNL, 5.0 ) * pow( 1.0 - roughness, 2.0 ) );
+
+}
+
+#if NUM_RECT_AREA_LIGHTS > 0
+
+    void RE_Direct_RectArea_Physical( const in RectAreaLight rectAreaLight, const in GeometricContext geometry, const in PhysicalMaterial material, inout ReflectedLight reflectedLight ) {
+
+        vec3 normal = geometry.normal;
+        vec3 viewDir = geometry.viewDir;
+        vec3 position = geometry.position;
+        vec3 lightPos = rectAreaLight.position;
+        vec3 halfWidth = rectAreaLight.halfWidth;
+        vec3 halfHeight = rectAreaLight.halfHeight;
+        vec3 lightColor = rectAreaLight.color;
+        float roughness = material.specularRoughness;
+
+        vec3 rectCoords[ 4 ];
+        rectCoords[ 0 ] = lightPos + halfWidth - halfHeight; // counterclockwise; light shines in local neg z direction
+        rectCoords[ 1 ] = lightPos - halfWidth - halfHeight;
+        rectCoords[ 2 ] = lightPos - halfWidth + halfHeight;
+        rectCoords[ 3 ] = lightPos + halfWidth + halfHeight;
+
+        vec2 uv = LTC_Uv( normal, viewDir, roughness );
+
+        vec4 t1 = texture2D( ltc_1, uv );
+        vec4 t2 = texture2D( ltc_2, uv );
+
+        mat3 mInv = mat3(
+            vec3( t1.x, 0, t1.y ),
+            vec3(    0, 1,    0 ),
+            vec3( t1.z, 0, t1.w )
+        );
+
+        // LTC Fresnel Approximation by Stephen Hill
+        // http://blog.selfshadow.com/publications/s2016-advances/s2016_ltc_fresnel.pdf
+        vec3 fresnel = ( material.specularColor * t2.x + ( vec3( 1.0 ) - material.specularColor ) * t2.y );
+
+        reflectedLight.directSpecular += lightColor * fresnel * LTC_Evaluate( normal, viewDir, position, mInv, rectCoords );
+
+        reflectedLight.directDiffuse += lightColor * material.diffuseColor * LTC_Evaluate( normal, viewDir, position, mat3( 1.0 ), rectCoords );
+
+    }
+
+#endif
+
+void RE_Direct_Physical( const in IncidentLight directLight, const in GeometricContext geometry, const in PhysicalMaterial material, inout ReflectedLight reflectedLight ) {
+
+    float dotNL = saturate( dot( geometry.normal, directLight.direction ) );
+
+    vec3 irradiance = dotNL * directLight.color;
+
+    #ifndef PHYSICALLY_CORRECT_LIGHTS
+
+        irradiance *= PI; // punctual light
+
+    #endif
+
+    #ifdef CLEARCOAT
+
+        float ccDotNL = saturate( dot( geometry.clearcoatNormal, directLight.direction ) );
+
+        vec3 ccIrradiance = ccDotNL * directLight.color;
+
+        #ifndef PHYSICALLY_CORRECT_LIGHTS
+
+            ccIrradiance *= PI; // punctual light
+
+        #endif
+
+        float clearcoatDHR = material.clearcoat * clearcoatDHRApprox( material.clearcoatRoughness, ccDotNL );
+
+        reflectedLight.directSpecular += ccIrradiance * material.clearcoat * BRDF_Specular_GGX( directLight, geometry.viewDir, geometry.clearcoatNormal, vec3( DEFAULT_SPECULAR_COEFFICIENT ), material.clearcoatRoughness );
+
+    #else
+
+        float clearcoatDHR = 0.0;
+
+    #endif
+
+    #ifdef USE_SHEEN
+        reflectedLight.directSpecular += ( 1.0 - clearcoatDHR ) * irradiance * BRDF_Specular_Sheen(
+            material.specularRoughness,
+            directLight.direction,
+            geometry,
+            material.sheenColor
+        );
+    #else
+        reflectedLight.directSpecular += ( 1.0 - clearcoatDHR ) * irradiance * BRDF_Specular_GGX( directLight, geometry.viewDir, geometry.normal, material.specularColor, material.specularRoughness);
+    #endif
+
+    reflectedLight.directDiffuse += ( 1.0 - clearcoatDHR ) * irradiance * BRDF_Diffuse_Lambert( material.diffuseColor );
+}
+
+void RE_IndirectDiffuse_Physical( const in vec3 irradiance, const in GeometricContext geometry, const in PhysicalMaterial material, inout ReflectedLight reflectedLight ) {
+
+    reflectedLight.indirectDiffuse += irradiance * BRDF_Diffuse_Lambert( material.diffuseColor );
+
+}
+
+void RE_IndirectSpecular_Physical( const in vec3 radiance, const in vec3 irradiance, const in vec3 clearcoatRadiance, const in GeometricContext geometry, const in PhysicalMaterial material, inout ReflectedLight reflectedLight) {
+
+    #ifdef CLEARCOAT
+
+        float ccDotNV = saturate( dot( geometry.clearcoatNormal, geometry.viewDir ) );
+
+        reflectedLight.indirectSpecular += clearcoatRadiance * material.clearcoat * BRDF_Specular_GGX_Environment( geometry.viewDir, geometry.clearcoatNormal, vec3( DEFAULT_SPECULAR_COEFFICIENT ), material.clearcoatRoughness );
+
+        float ccDotNL = ccDotNV;
+        float clearcoatDHR = material.clearcoat * clearcoatDHRApprox( material.clearcoatRoughness, ccDotNL );
+
+    #else
+
+        float clearcoatDHR = 0.0;
+
+    #endif
+
+    float clearcoatInv = 1.0 - clearcoatDHR;
+
+    // Both indirect specular and diffuse light accumulate here
+    // if energy preservation enabled, and PMREM provided.
+
+    vec3 singleScattering = vec3( 0.0 );
+    vec3 multiScattering = vec3( 0.0 );
+    vec3 cosineWeightedIrradiance = irradiance * RECIPROCAL_PI;
+
+    BRDF_Specular_Multiscattering_Environment( geometry, material.specularColor, material.specularRoughness, singleScattering, multiScattering );
+
+    vec3 diffuse = material.diffuseColor * ( 1.0 - ( singleScattering + multiScattering ) );
+
+    vec3 scaleRadiance = radiance;
+    #ifndef ENVMAP_MODE_REFRACTION
+        scaleRadiance *= singleScattering;
+    #endif
+    reflectedLight.indirectSpecular += clearcoatInv * scaleRadiance;
+    reflectedLight.indirectDiffuse += multiScattering * cosineWeightedIrradiance;
+    reflectedLight.indirectDiffuse += diffuse * cosineWeightedIrradiance;
+
+}
+
+#define RE_Direct                RE_Direct_Physical
+#define RE_Direct_RectArea        RE_Direct_RectArea_Physical
+#define RE_IndirectDiffuse        RE_IndirectDiffuse_Physical
+#define RE_IndirectSpecular        RE_IndirectSpecular_Physical
+
+// ref: https://seblagarde.files.wordpress.com/2015/07/course_notes_moving_frostbite_to_pbr_v32.pdf
+float computeSpecularOcclusion( const in float dotNV, const in float ambientOcclusion, const in float roughness ) {
+
+    return saturate( pow( dotNV + ambientOcclusion, exp2( - 16.0 * roughness - 1.0 ) ) - 1.0 + ambientOcclusion );
+
+}
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ shadowmap_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_SHADOWMAP
+
+    #if NUM_DIR_LIGHT_SHADOWS > 0
+
+        // uniform sampler2D directionalShadowMap[ NUM_DIR_LIGHT_SHADOWS ];
+        // varying vec4 vDirectionalShadowCoord[ NUM_DIR_LIGHT_SHADOWS ];
+
+        uniform vec4 u_light0_shadow_data;
+        uniform highp sampler2D t_shadowmap_texture;
+        #define _ShadowMapTexture_TexelSize vec4(0.0, 0.0, 512, 512)
+
+        varying vec4 vDirectionalShadowCoord;
+
+    #endif
+
+    #if NUM_SPOT_LIGHT_SHADOWS > 0
+
+        uniform sampler2D spotShadowMap[ NUM_SPOT_LIGHT_SHADOWS ];
+        varying vec4 vSpotShadowCoord[ NUM_SPOT_LIGHT_SHADOWS ];
+
+    #endif
+
+    #if NUM_POINT_LIGHT_SHADOWS > 0
+
+        uniform sampler2D pointShadowMap[ NUM_POINT_LIGHT_SHADOWS ];
+        varying vec4 vPointShadowCoord[ NUM_POINT_LIGHT_SHADOWS ];
+
+    #endif
+
+    /*
+    #if NUM_RECT_AREA_LIGHTS > 0
+
+        // TODO (abelnation): create uniforms for area light shadows
+
+    #endif
+    */
+
+    float texture2DCompare( sampler2D depths, vec2 uv, float compare ) {
+
+        // return step( compare, unpackRGBAToDepth( texture2D( depths, uv ) ) );
+        return step( compare, texture2D( depths, uv).r );
+
+    }
+
+    vec2 texture2DDistribution( sampler2D shadow, vec2 uv ) {
+
+        return decodeHalfRGBA( texture2D( shadow, uv ) );
+
+    }
+
+    float VSMShadow (sampler2D shadow, vec2 uv, float compare ){
+
+        float occlusion = 1.0;
+
+        vec2 distribution = texture2DDistribution( shadow, uv );
+
+        float hard_shadow = step( compare , distribution.x ); // Hard Shadow
+
+        if (hard_shadow != 1.0 ) {
+
+            float distance = compare - distribution.x ;
+            float variance = max( 0.00000, distribution.y * distribution.y );
+            float softness_probability = variance / (variance + distance * distance ); // Chebeyshevs inequality
+            softness_probability = clamp( ( softness_probability - 0.3 ) / ( 0.95 - 0.3 ), 0.0, 1.0 ); // 0.3 reduces light bleed
+            occlusion = clamp( max( hard_shadow, softness_probability ), 0.0, 1.0 );
+
+        }
+        return occlusion;
+
+    }
+
+    float texture2DShadowLerp( sampler2D depths, vec2 size, vec2 uv, float compare ) {
+
+        const vec2 offset = vec2( 0.0, 1.0 );
+
+        vec2 texelSize = vec2( 1.0 ) / size;
+        vec2 centroidUV = ( floor( uv * size - 0.5 ) + 0.5 ) * texelSize;
+
+        float lb = texture2DCompare( depths, centroidUV + texelSize * offset.xx, compare );
+        float lt = texture2DCompare( depths, centroidUV + texelSize * offset.xy, compare );
+        float rb = texture2DCompare( depths, centroidUV + texelSize * offset.yx, compare );
+        float rt = texture2DCompare( depths, centroidUV + texelSize * offset.yy, compare );
+
+        vec2 f = fract( uv * size + 0.5 );
+
+        float a = mix( lb, lt, f.y );
+        float b = mix( rb, rt, f.y );
+        float c = mix( a, b, f.x );
+
+        return c;
+
+    }
+
+    float getShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowBias, float shadowRadius, vec4 shadowCoord, float shadowStrenth  ) {
+
+        float shadow = 1.0;
+
+        shadowCoord.xyz /= shadowCoord.w;
+        shadowCoord.z += shadowBias;
+
+        // if ( something && something ) breaks ATI OpenGL shader compiler
+        // if ( all( something, something ) ) using this instead
+
+        bvec4 inFrustumVec = bvec4 ( shadowCoord.x >= 0.0, shadowCoord.x <= 1.0, shadowCoord.y >= 0.0, shadowCoord.y <= 1.0 );
+        bool inFrustum = all( inFrustumVec );
+
+        bvec2 frustumTestVec = bvec2( inFrustum, shadowCoord.z <= 1.0 );
+
+        bool frustumTest = all( frustumTestVec );
+
+        if ( frustumTest ) {
+
+        #if defined( SHADOWMAP_TYPE_PCF )
+
+            vec2 texelSize = vec2( 1.0 ) / shadowMapSize;
+
+            float dx0 = - texelSize.x * shadowRadius;
+            float dy0 = - texelSize.y * shadowRadius;
+            float dx1 = + texelSize.x * shadowRadius;
+            float dy1 = + texelSize.y * shadowRadius;
+            float dx2 = dx0 / 2.0;
+            float dy2 = dy0 / 2.0;
+            float dx3 = dx1 / 2.0;
+            float dy3 = dy1 / 2.0;
+
+            shadow = max( (
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx0, dy0 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy0 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx1, dy0 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx2, dy2 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy2 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx3, dy2 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx0, 0.0 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx2, 0.0 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy, shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx3, 0.0 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx1, 0.0 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx2, dy3 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy3 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx3, dy3 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx0, dy1 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( 0.0, dy1 ), shadowCoord.z ) +
+                texture2DCompare( shadowMap, shadowCoord.xy + vec2( dx1, dy1 ), shadowCoord.z )
+            ) * ( 1.0 / 17.0 ), shadowStrenth );
+
+        #elif defined( SHADOWMAP_TYPE_PCF_SOFT )
+
+            vec2 texelSize = vec2( 1.0 ) / shadowMapSize;
+
+            float dx0 = - texelSize.x * shadowRadius;
+            float dy0 = - texelSize.y * shadowRadius;
+            float dx1 = + texelSize.x * shadowRadius;
+            float dy1 = + texelSize.y * shadowRadius;
+
+            shadow = (
+                texture2DShadowLerp( shadowMap, shadowMapSize, shadowCoord.xy + vec2( dx0, dy0 ), shadowCoord.z ) +
+                texture2DShadowLerp( shadowMap, shadowMapSize, shadowCoord.xy + vec2( 0.0, dy0 ), shadowCoord.z ) +
+                texture2DShadowLerp( shadowMap, shadowMapSize, shadowCoord.xy + vec2( dx1, dy0 ), shadowCoord.z ) +
+                texture2DShadowLerp( shadowMap, shadowMapSize, shadowCoord.xy + vec2( dx0, 0.0 ), shadowCoord.z ) +
+                texture2DShadowLerp( shadowMap, shadowMapSize, shadowCoord.xy, shadowCoord.z ) +
+                texture2DShadowLerp( shadowMap, shadowMapSize, shadowCoord.xy + vec2( dx1, 0.0 ), shadowCoord.z ) +
+                texture2DShadowLerp( shadowMap, shadowMapSize, shadowCoord.xy + vec2( dx0, dy1 ), shadowCoord.z ) +
+                texture2DShadowLerp( shadowMap, shadowMapSize, shadowCoord.xy + vec2( 0.0, dy1 ), shadowCoord.z ) +
+                texture2DShadowLerp( shadowMap, shadowMapSize, shadowCoord.xy + vec2( dx1, dy1 ), shadowCoord.z )
+            ) * ( 1.0 / 9.0 );
+
+        #elif defined( SHADOWMAP_TYPE_VSM )
+
+            shadow = VSMShadow( shadowMap, shadowCoord.xy, shadowCoord.z );
+
+        #else // no percentage-closer filtering:
+
+            shadow = max(texture2DCompare( shadowMap, shadowCoord.xy, shadowCoord.z ), shadowStrenth);
+
+        #endif
+
+        }
+
+        return shadow;
+
+    }
+
+    // cubeToUV() maps a 3D direction vector suitable for cube texture mapping to a 2D
+    // vector suitable for 2D texture mapping. This code uses the following layout for the
+    // 2D texture:
+    //
+    // xzXZ
+    //  y Y
+    //
+    // Y - Positive y direction
+    // y - Negative y direction
+    // X - Positive x direction
+    // x - Negative x direction
+    // Z - Positive z direction
+    // z - Negative z direction
+    //
+    // Source and test bed:
+    // https://gist.github.com/tschw/da10c43c467ce8afd0c4
+
+    vec2 cubeToUV( vec3 v, float texelSizeY ) {
+
+        // Number of texels to avoid at the edge of each square
+
+        vec3 absV = abs( v );
+
+        // Intersect unit cube
+
+        float scaleToCube = 1.0 / max( absV.x, max( absV.y, absV.z ) );
+        absV *= scaleToCube;
+
+        // Apply scale to avoid seams
+
+        // two texels less per square (one texel will do for NEAREST)
+        v *= scaleToCube * ( 1.0 - 2.0 * texelSizeY );
+
+        // Unwrap
+
+        // space: -1 ... 1 range for each square
+        //
+        // #X##        dim    := ( 4 , 2 )
+        //  # #        center := ( 1 , 1 )
+
+        vec2 planar = v.xy;
+
+        float almostATexel = 1.5 * texelSizeY;
+        float almostOne = 1.0 - almostATexel;
+
+        if ( absV.z >= almostOne ) {
+
+            if ( v.z > 0.0 )
+                planar.x = 4.0 - v.x;
+
+        } else if ( absV.x >= almostOne ) {
+
+            float signX = sign( v.x );
+            planar.x = v.z * signX + 2.0 * signX;
+
+        } else if ( absV.y >= almostOne ) {
+
+            float signY = sign( v.y );
+            planar.x = v.x + 2.0 * signY + 2.0;
+            planar.y = v.z * signY - 2.0;
+
+        }
+
+        // Transform to UV space
+
+        // scale := 0.5 / dim
+        // translate := ( center + 0.5 ) / dim
+        return vec2( 0.125, 0.25 ) * planar + vec2( 0.375, 0.75 );
+
+    }
+
+    float getPointShadow( sampler2D shadowMap, vec2 shadowMapSize, float shadowBias, float shadowRadius, vec4 shadowCoord, float shadowCameraNear, float shadowCameraFar ) {
+
+        vec2 texelSize = vec2( 1.0 ) / ( shadowMapSize * vec2( 4.0, 2.0 ) );
+
+        // for point lights, the uniform @vShadowCoord is re-purposed to hold
+        // the vector from the light to the world-space position of the fragment.
+        vec3 lightToPosition = shadowCoord.xyz;
+
+        // dp = normalized distance from light to fragment position
+        float dp = ( length( lightToPosition ) - shadowCameraNear ) / ( shadowCameraFar - shadowCameraNear ); // need to clamp?
+        dp += shadowBias;
+
+        // bd3D = base direction 3D
+        vec3 bd3D = normalize( lightToPosition );
+
+        #if defined( SHADOWMAP_TYPE_PCF ) || defined( SHADOWMAP_TYPE_PCF_SOFT ) || defined( SHADOWMAP_TYPE_VSM )
+
+            vec2 offset = vec2( - 1, 1 ) * shadowRadius * texelSize.y;
+
+            return (
+                texture2DCompare( shadowMap, cubeToUV( bd3D + offset.xyy, texelSize.y ), dp ) +
+                texture2DCompare( shadowMap, cubeToUV( bd3D + offset.yyy, texelSize.y ), dp ) +
+                texture2DCompare( shadowMap, cubeToUV( bd3D + offset.xyx, texelSize.y ), dp ) +
+                texture2DCompare( shadowMap, cubeToUV( bd3D + offset.yyx, texelSize.y ), dp ) +
+                texture2DCompare( shadowMap, cubeToUV( bd3D, texelSize.y ), dp ) +
+                texture2DCompare( shadowMap, cubeToUV( bd3D + offset.xxy, texelSize.y ), dp ) +
+                texture2DCompare( shadowMap, cubeToUV( bd3D + offset.yxy, texelSize.y ), dp ) +
+                texture2DCompare( shadowMap, cubeToUV( bd3D + offset.xxx, texelSize.y ), dp ) +
+                texture2DCompare( shadowMap, cubeToUV( bd3D + offset.yxx, texelSize.y ), dp )
+            ) * ( 1.0 / 9.0 );
+
+        #else // no percentage-closer filtering
+
+            return texture2DCompare( shadowMap, cubeToUV( bd3D, texelSize.y ), dp );
+
+        #endif
+
+    }
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ bumpmap_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_BUMPMAP
+
+    uniform sampler2D bumpMap;
+    uniform float bumpScale;
+
+    // Bump Mapping Unparametrized Surfaces on the GPU by Morten S. Mikkelsen
+    // http://api.unrealengine.com/attachments/Engine/Rendering/LightingAndShadows/BumpMappingWithoutTangentSpace/mm_sfgrad_bump.pdf
+
+    // Evaluate the derivative of the height w.r.t. screen-space using forward differencing (listing 2)
+
+    vec2 dHdxy_fwd() {
+
+        vec2 dSTdx = dFdx( vUv );
+        vec2 dSTdy = dFdy( vUv );
+
+        float Hll = bumpScale * texture2D( bumpMap, vUv ).x;
+        float dBx = bumpScale * texture2D( bumpMap, vUv + dSTdx ).x - Hll;
+        float dBy = bumpScale * texture2D( bumpMap, vUv + dSTdy ).x - Hll;
+
+        return vec2( dBx, dBy );
+
+    }
+
+    vec3 perturbNormalArb( vec3 surf_pos, vec3 surf_norm, vec2 dHdxy ) {
+
+        // Workaround for Adreno 3XX dFd*( vec3 ) bug. See #9988
+
+        vec3 vSigmaX = vec3( dFdx( surf_pos.x ), dFdx( surf_pos.y ), dFdx( surf_pos.z ) );
+        vec3 vSigmaY = vec3( dFdy( surf_pos.x ), dFdy( surf_pos.y ), dFdy( surf_pos.z ) );
+        vec3 vN = surf_norm;        // normalized
+
+        vec3 R1 = cross( vSigmaY, vN );
+        vec3 R2 = cross( vN, vSigmaX );
+
+        float fDet = dot( vSigmaX, R1 );
+
+        fDet *= ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+
+        vec3 vGrad = sign( fDet ) * ( dHdxy.x * R1 + dHdxy.y * R2 );
+        return normalize( abs( fDet ) * surf_norm - vGrad );
+
+    }
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ normalmap_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_NORMALMAP
+
+    uniform sampler2D _BumpMap; //normalMap
+    uniform vec4 _BumpMap_ST;
+    uniform float _BumpScale; //normalScale
+
+#endif
+
+#ifdef OBJECTSPACE_NORMALMAP
+
+    // uniform mat3 normalMatrix;
+    #define normalMatrix mat_MatrixView*mat_ObjectToWorld
+
+#endif
+
+#if ! defined ( USE_TANGENT ) && ( defined ( TANGENTSPACE_NORMALMAP ) || defined ( USE_CLEARCOAT_NORMALMAP ) )
+
+    // Per-Pixel Tangent Space Normal Mapping
+    // http://hacksoflife.blogspot.ch/2009/11/per-pixel-tangent-space-normal-mapping.html
+
+    vec3 perturbNormal2Arb( vec3 eye_pos, vec3 surf_norm, vec2 normalScale, in sampler2D normalMap, vec2 uv ) {
+
+        // Workaround for Adreno 3XX dFd*( vec3 ) bug. See #9988
+
+        vec3 q0 = vec3( dFdx( eye_pos.x ), dFdx( eye_pos.y ), dFdx( eye_pos.z ) );
+        vec3 q1 = vec3( dFdy( eye_pos.x ), dFdy( eye_pos.y ), dFdy( eye_pos.z ) );
+        vec2 st0 = dFdx( vUv.st );
+        vec2 st1 = dFdy( vUv.st );
+
+        float scale = sign( st1.t * st0.s - st0.t * st1.s ); // we do not care about the magnitude
+
+        vec3 S = normalize( ( q0 * st1.t - q1 * st0.t ) * scale );
+        vec3 T = normalize( ( - q0 * st1.s + q1 * st0.s ) * scale );
+        vec3 N = normalize( surf_norm );
+
+        vec3 mapN = texture2D( normalMap, uv ).xyz * 2.0 - 1.0;
+
+        mapN.xy *= _BumpScale;
+
+        #ifdef DOUBLE_SIDED
+
+            // Workaround for Adreno GPUs gl_FrontFacing bug. See #15850 and #10331
+            // http://hacksoflife.blogspot.com/2009/11/per-pixel-tangent-space-normal-mapping.html?showComment=1522254677437#c5087545147696715943
+            vec3 NfromST = cross( S, T );
+            if( dot( NfromST, N ) > 0.0 ) {
+
+                S *= -1.0;
+                T *= -1.0;
+
+            }
+
+        #else
+
+            mapN.xy *= ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+
+        #endif
+
+        mat3 tsn = mat3( S, T, N );
+        return normalize( tsn * mapN );
+
+    }
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ clearcoat_normalmap_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_CLEARCOAT_NORMALMAP
+
+    uniform sampler2D clearcoatNormalMap;
+    uniform vec4 clearcoatNormalMap_ST;
+    // uniform vec2 clearcoatNormalScale;
+    uniform float clearcoatNormalScale;
+
+#endif
+
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ roughnessmap_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_ROUGHNESSMAP
+
+    uniform sampler2D _MetallicGlossMap; //roughnessMap
+    uniform vec4 _MetallicGlossMap_ST;
+
+#endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ metalnessmap_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef USE_METALNESSMAP
+
+    // uniform sampler2D metalnessMap;
+
+#endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ logdepthbuf_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#if defined( USE_LOGDEPTHBUF ) && defined( USE_LOGDEPTHBUF_EXT )
+
+    uniform float logDepthBufFC;
+    varying float vFragDepth;
+
+#endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ clipping_planes_pars_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#if NUM_CLIPPING_PLANES > 0
+
+    #if ! defined( STANDARD ) && ! defined( PHONG ) && ! defined( MATCAP )
+        varying vec3 vViewPosition;
+    #endif
+
+    uniform vec4 clippingPlanes[ NUM_CLIPPING_PLANES ];
+
+#endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ alpha test ----------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#ifdef ALPHATEST
+    uniform float _Cutoff;
+#endif
+
+void main() {
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ clipping_planes_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #if NUM_CLIPPING_PLANES > 0
+
+        vec4 plane;
+
+        #pragma unroll_loop
+        for ( int i = 0; i < UNION_CLIPPING_PLANES; i ++ ) {
+
+            plane = clippingPlanes[ i ];
+            if ( dot( vViewPosition, plane.xyz ) > plane.w ) discard;
+
+        }
+
+        #if UNION_CLIPPING_PLANES < NUM_CLIPPING_PLANES
+
+            bool clipped = true;
+
+            #pragma unroll_loop
+            for ( int i = UNION_CLIPPING_PLANES; i < NUM_CLIPPING_PLANES; i ++ ) {
+
+                plane = clippingPlanes[ i ];
+                clipped = ( dot( vViewPosition, plane.xyz ) > plane.w ) && clipped;
+
+            }
+
+            if ( clipped ) discard;
+
+        #endif
+
+    #endif
+
+
+
+    vec4 diffuseColor = _Color;
+    ReflectedLight reflectedLight = ReflectedLight( vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ), vec3( 0.0 ) );
+    vec3 totalEmissiveRadiance = vec3( 0.0 );
+    #ifdef USE_EMISSION
+        totalEmissiveRadiance = _EmissionColor.rgb;
+    #endif
+
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ logdepthbuf_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #if defined( USE_LOGDEPTHBUF ) && defined( USE_LOGDEPTHBUF_EXT )
+
+        gl_FragDepthEXT = log2( vFragDepth ) * logDepthBufFC * 0.5;
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ map_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef USE_MAP
+
+        vec4 texelColor = texture2D( _MainTex, vUv * _MainTex_ST.xy + _MainTex_ST.zw );
+
+        texelColor = mapTexelToLinear( texelColor );
+        diffuseColor *= texelColor;
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ color_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef USE_COLOR
+
+        diffuseColor.rgb *= vColor;
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ alphamap_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef USE_ALPHAMAP
+
+        diffuseColor.a *= texture2D( alphaMap, vUv ).g;
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ alphatest_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef ALPHATEST
+
+        if ( diffuseColor.a < _Cutoff ) discard;
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ roughnessmap_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    float roughnessFactor = _GlossMapScale;
+
+    #ifdef USE_ROUGHNESSMAP
+        
+        vec4 texelRoughness = texture2D( _MetallicGlossMap, vUv * _MetallicGlossMap_ST.xy + _MetallicGlossMap_ST.zw );
+
+        // reads channel G, compatible with a combined OcclusionRoughnessMetallic (RGB) texture
+        roughnessFactor *= texelRoughness.a;
+
+    #endif
+
+	roughnessFactor = 1.0 - roughnessFactor;
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ metalnessmap_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    float metalnessFactor = _Metallic;
+
+    #ifdef USE_METALNESSMAP
+
+        // vec4 texelMetalness = texture2D( _MetallicGlossMap, metallic_gloss_uv );
+
+        // reads channel B, compatible with a combined OcclusionRoughnessMetallic (RGB) texture
+        // metalnessFactor *= texelMetalness.r;
+        metalnessFactor *= texelRoughness.r;
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ normal_fragment_begin ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef FLAT_SHADED
+
+        // Workaround for Adreno/Nexus5 not able able to do dFdx( vViewPosition ) ...
+
+        vec3 fdx = vec3( dFdx( vViewPosition.x ), dFdx( vViewPosition.y ), dFdx( vViewPosition.z ) );
+        vec3 fdy = vec3( dFdy( vViewPosition.x ), dFdy( vViewPosition.y ), dFdy( vViewPosition.z ) );
+        vec3 normal = normalize( cross( fdx, fdy ) );
+
+    #else
+
+        vec3 normal = normalize( vNormal );
+
+        #ifdef DOUBLE_SIDED
+
+            normal = normal * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+
+        #endif
+
+        #ifdef USE_TANGENT
+
+            vec3 tangent = normalize( vTangent );
+            vec3 bitangent = normalize( vBitangent );
+
+            #ifdef DOUBLE_SIDED
+
+                tangent = tangent * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+                bitangent = bitangent * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+
+            #endif
+
+        #endif
+
+    #endif
+
+    // non perturbed normal for clearcoat among others
+
+    vec3 geometryNormal = normal;
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ normal_fragment_maps ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef USE_NORMALMAP
+        #ifdef OBJECTSPACE_NORMALMAP
+
+            normal = texture2D( _BumpMap, vUv * _BumpMap_ST.xy + _BumpMap_ST.zw ).xyz * 2.0 - 1.0; // overrides both flatShading and attribute normals
+
+            #ifdef FLIP_SIDED
+
+                normal = - normal;
+
+            #endif
+
+            #ifdef DOUBLE_SIDED
+
+                normal = normal * ( float( gl_FrontFacing ) * 2.0 - 1.0 );
+
+            #endif
+
+            normal = normalize( normalMatrix * normal );
+
+        #elif defined( TANGENTSPACE_NORMALMAP )
+
+            #ifdef USE_TANGENT
+
+                mat3 vTBN = mat3( tangent, bitangent, normal );
+                vec3 mapN = texture2D( _BumpMap, vUv * _BumpMap_ST.xy + _BumpMap_ST.zw ).xyz * 2.0 - 1.0;
+                mapN.xy = _BumpScale * mapN.xy;
+                normal = normalize( vTBN * mapN );
+
+            #else
+
+                normal = perturbNormal2Arb( -vViewPosition, normal, _BumpScale, _BumpMap, vUv * _BumpMap_ST.xy + _BumpMap_ST.zw );
+
+            #endif
+        #endif
+    #elif defined( USE_BUMPMAP )
+
+        normal = perturbNormalArb( -vViewPosition, normal, dHdxy_fwd() );
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ clearcoat_normal_fragment_begin ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef CLEARCOAT
+
+        vec3 clearcoatNormal = geometryNormal;
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ clearcoat_normal_fragment_maps ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #if defined( CLEARCOAT ) && defined( USE_CLEARCOAT_NORMALMAP )
+
+        #ifdef USE_TANGENT
+
+            // mat3 vTBN = mat3( tangent, bitangent, clearcoatNormal );
+            // vec3 mapN = texture2D( _BumpMap, vUv * _BumpMap_ST.xy + _BumpMap_ST.zw ).xyz * 2.0 - 1.0;
+            // mapN.xy = clearcoatNormalScale * mapN.xy;
+            // clearcoatNormal = normalize( vTBN * mapN );
+
+            mat3 clearCoatvTBN = mat3( tangent, bitangent, clearcoatNormal );
+            vec3 clearCoatmapN = texture2D( clearcoatNormalMap, vUv * clearcoatNormalMap_ST.xy + clearcoatNormalMap_ST.zw ).xyz * 2.0 - 1.0;
+            clearCoatmapN.xy = clearcoatNormalScale * clearCoatmapN.xy;
+            clearcoatNormal = normalize( clearCoatvTBN * clearCoatmapN );
+
+        #else
+
+            clearcoatNormal = perturbNormal2Arb( - vViewPosition, clearcoatNormal, clearcoatNormalScale, clearcoatNormalMap, vUv * _BumpMap_ST.xy + _BumpMap_ST.zw );
+
+        #endif
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ emissivemap_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #if defined( USE_EMISSION ) && defined( USE_EMISSIVEMAP )
+
+        vec4 emissiveColor = texture2D( _EmissionMap, vUv * _EmissionMap_ST.xy + _EmissionMap_ST.zw );
+
+        emissiveColor.rgb = emissiveMapTexelToLinear( emissiveColor ).rgb;
+
+        totalEmissiveRadiance *= emissiveColor.rgb;
+
+    #endif
+
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ lights_physical_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+
+    // accumulation
+    PhysicalMaterial material;
+    material.diffuseColor = diffuseColor.rgb * ( 1.0 - metalnessFactor );
+    material.specularRoughness = clamp( roughnessFactor, 0.04, 1.0 );
+
+    #ifdef REFLECTIVITY
+
+        material.specularColor = mix( vec3( MAXIMUM_SPECULAR_COEFFICIENT * pow2( reflectivity ) ), diffuseColor.rgb, metalnessFactor );
+
+    #else
+
+        material.specularColor = mix( vec3( DEFAULT_SPECULAR_COEFFICIENT ), diffuseColor.rgb, metalnessFactor );
+
+    #endif
+
+    #ifdef CLEARCOAT
+
+        material.clearcoat = saturate( clearcoat ); // Burley clearcoat model
+        material.clearcoatRoughness = clamp( clearcoatRoughness, 0.04, 1.0 );
+
+    #endif
+    #ifdef USE_SHEEN
+
+        material.sheenColor = sheen;
+
+    #endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ lights_fragment_begin ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+/**
+ * This is a template that can be used to light a material, it uses pluggable
+ * RenderEquations (RE)for specific lighting scenarios.
+ *
+ * Instructions for use:
+ * - Ensure that both RE_Direct, RE_IndirectDiffuse and RE_IndirectSpecular are defined
+ * - If you have defined an RE_IndirectSpecular, you need to also provide a Material_LightProbeLOD. <---- ???
+ * - Create a material parameter that is to be passed as the third parameter to your lighting functions.
+ *
+ * TODO:
+ * - Add area light support.
+ * - Add sphere light support.
+ * - Add diffuse light probe (irradiance cubemap) support.
+ */
+
+GeometricContext geometry;
+
+geometry.position = - vViewPosition;
+geometry.normal = normal;
+geometry.viewDir = normalize( vViewPosition );
+
+#ifdef CLEARCOAT
+
+    geometry.clearcoatNormal = clearcoatNormal;
+
+#endif
+
+IncidentLight directLight;
+
+#if ( NUM_POINT_LIGHTS > 0 ) && defined( RE_Direct )
+
+    PointLight pointLight;
+
+    #pragma unroll_loop
+    for ( int i = 0; i < NUM_POINT_LIGHTS; i ++ ) {
+
+        pointLight = pointLights[ i ];
+
+        getPointDirectLightIrradiance( pointLight, geometry, directLight );
+
+        #if defined( USE_SHADOWMAP ) && ( UNROLLED_LOOP_INDEX < NUM_POINT_LIGHT_SHADOWS )
+        directLight.color *= all( bvec2( pointLight.shadow, directLight.visible ) ) ? getPointShadow( pointShadowMap[ i ], pointLight.shadowMapSize, pointLight.shadowBias, pointLight.shadowRadius, vPointShadowCoord[ i ], pointLight.shadowCameraNear, pointLight.shadowCameraFar ) : 1.0;
+        #endif
+
+        RE_Direct( directLight, geometry, material, reflectedLight );
+
+    }
+
+#endif
+
+#if ( NUM_SPOT_LIGHTS > 0 ) && defined( RE_Direct )
+
+    SpotLight spotLight;
+
+    #pragma unroll_loop
+    for ( int i = 0; i < NUM_SPOT_LIGHTS; i ++ ) {
+
+        spotLight = spotLights[ i ];
+
+        getSpotDirectLightIrradiance( spotLight, geometry, directLight );
+
+        #if defined( USE_SHADOWMAP ) && ( UNROLLED_LOOP_INDEX < NUM_SPOT_LIGHT_SHADOWS )
+        directLight.color *= all( bvec2( spotLight.shadow, directLight.visible ) ) ? getShadow( spotShadowMap[ i ], spotLight.shadowMapSize, spotLight.shadowBias, spotLight.shadowRadius, vSpotShadowCoord[ i ] ) : 1.0;
+        #endif
+
+        RE_Direct( directLight, geometry, material, reflectedLight );
+
+    }
+
+#endif
+
+#if ( NUM_DIR_LIGHTS > 0 ) && defined( RE_Direct )
+
+    DirectionalLight directionalLight;
+
+    // #pragma unroll_loop
+    // for ( int i = 0; i < NUM_DIR_LIGHTS; i ++ ) {
+
+    //     directionalLight = directionalLights[ i ];
+
+    //     getDirectionalDirectLightIrradiance( directionalLight, geometry, directLight );
+
+    //     #if defined( USE_SHADOWMAP ) && ( UNROLLED_LOOP_INDEX < NUM_DIR_LIGHT_SHADOWS )
+    //     directLight.color *= all( bvec2( directionalLight.shadow, directLight.visible ) ) ? getShadow( directionalShadowMap[ i ], directionalLight.shadowMapSize, directionalLight.shadowBias, directionalLight.shadowRadius, vDirectionalShadowCoord[ i ] ) : 1.0;
+    //     #endif
+
+    //     RE_Direct( directLight, geometry, material, reflectedLight );
+
+    // }
+
+        // directionalLight = directionalLights[ 0 ];
+        directionalLight.direction = vec4(mat_MatrixView * u_light0_pos_world).xyz;
+        directionalLight.color = u_light0_color.rgb;
+
+
+        getDirectionalDirectLightIrradiance( directionalLight, geometry, directLight );
+
+        #if defined( USE_SHADOWMAP )
+        directionalLight.shadow = DIRECTIONAL_LIGHT_SHADOW;
+        directionalLight.shadowBias = 0.0;
+        directionalLight.shadowRadius = 1.0;
+        directionalLight.shadowMapSize = _ShadowMapTexture_TexelSize.zw;
+
+        directLight.color *= all( bvec2( directionalLight.shadow, directLight.visible ) ) ? getShadow( t_shadowmap_texture, directionalLight.shadowMapSize, directionalLight.shadowBias, directionalLight.shadowRadius, vDirectionalShadowCoord, u_light0_shadow_data.x ) : 1.0;
+        #endif
+
+        RE_Direct( directLight, geometry, material, reflectedLight );
+
+
+#endif
+
+#if ( NUM_RECT_AREA_LIGHTS > 0 ) && defined( RE_Direct_RectArea )
+
+    RectAreaLight rectAreaLight;
+
+    #pragma unroll_loop
+    for ( int i = 0; i < NUM_RECT_AREA_LIGHTS; i ++ ) {
+
+        rectAreaLight = rectAreaLights[ i ];
+        RE_Direct_RectArea( rectAreaLight, geometry, material, reflectedLight );
+
+    }
+
+#endif
+
+#if defined( RE_IndirectDiffuse )
+
+    vec3 iblIrradiance = vec3( 0.0 );
+
+    vec3 tmp_ambientLightColor = vec3( 0.2, 0.2, 0.2 );
+    // vec3 irradiance = getAmbientLightIrradiance( ambientLightColor );
+    // vec3 irradiance = getAmbientLightIrradiance( tmp_ambientLightColor );
+    vec3 irradiance = vec3( 0.0 );
+
+    // irradiance += getLightProbeIrradiance( lightProbe, geometry );
+    irradiance += getLightProbeIrradiance_Unity( u_sphere_harmonic, geometry );
+
+    #if ( NUM_HEMI_LIGHTS > 0 )
+
+        #pragma unroll_loop
+        for ( int i = 0; i < NUM_HEMI_LIGHTS; i ++ ) {
+
+            irradiance += getHemisphereLightIrradiance( hemisphereLights[ i ], geometry );
+
+        }
+
+    #endif
+
+#endif
+
+#if defined( RE_IndirectSpecular )
+
+    vec3 radiance = vec3( 0.0 );
+    vec3 clearcoatRadiance = vec3( 0.0 );
+
+#endif
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ lights_fragment_maps ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#if defined( RE_IndirectDiffuse )
+
+    #ifdef USE_LIGHTMAP
+
+        vec3 lightMapIrradiance = texture2D( lightMap, vUv2 ).xyz * lightMapIntensity;
+
+        #ifndef PHYSICALLY_CORRECT_LIGHTS
+
+            lightMapIrradiance *= PI; // factor of PI should not be present; included here to prevent breakage
+
+        #endif
+
+        irradiance += lightMapIrradiance;
+
+    #endif
+
+    #if defined( USE_ENVMAP ) && defined( STANDARD ) && defined( ENVMAP_TYPE_CUBE_UV )
+
+        iblIrradiance += getLightProbeIndirectIrradiance( /*lightProbe,*/ geometry, maxMipLevel );
+
+    #endif
+
+#endif
+
+#if defined( USE_ENVMAP ) && defined( RE_IndirectSpecular )
+
+    radiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry.viewDir, geometry.normal, material.specularRoughness, maxMipLevel );
+
+    #ifdef CLEARCOAT
+
+        clearcoatRadiance += getLightProbeIndirectRadiance( /*specularLightProbe,*/ geometry.viewDir, geometry.clearcoatNormal, material.clearcoatRoughness, maxMipLevel );
+
+    #endif
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ lights_fragment_end ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+#if defined( RE_IndirectDiffuse )
+
+    RE_IndirectDiffuse( irradiance, geometry, material, reflectedLight );
+
+#endif
+
+#if defined( RE_IndirectSpecular )
+
+    RE_IndirectSpecular( radiance, iblIrradiance, clearcoatRadiance, geometry, material, reflectedLight );
+
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ refraction_fragment_maps ---------------------------------
+// -----------------------------------------------------------------------------------------------------
+#if defined( ENVMAP_MODE_REFRACTION ) && defined( USE_ENVMAP )
+
+    vec3 refractionColor = vec3(0.0, 0.0, 0.0);
+    refractionColor += getLightProbeRefractionColor(geometry.viewDir, geometry.normal, material.specularRoughness, maxMipLevel);
+
+    refractionColor = mix(refractionColor, reflectedLight.directDiffuse + reflectedLight.indirectDiffuse, _Color.a);
+
+    float dotNV = saturate( dot( normalize(geometry.normal), geometry.viewDir ) );
+    // float fresnel = exp2( ( -5.55473 * dotNV - 6.98316 ) * dotNV );
+    float fresnel = 0.02 + 0.1 * reflectivity + pow(1.0 - dotNV, 2.0);
+    fresnel = saturate(fresnel);
+    reflectedLight.indirectSpecular = mix(refractionColor, reflectedLight.indirectSpecular, fresnel);
+    
+#endif
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ aomap_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+
+// modulation
+#ifdef USE_AOMAP
+
+    // reads channel R, compatible with a combined OcclusionRoughnessMetallic (RGB) texture
+    float ambientOcclusion = ( texture2D( _OcclusionMap, vUv2 * _OcclusionMap_ST.xy + _OcclusionMap_ST.zw ).r - 1.0 ) * _OcclusionStrength + 1.0;
+
+    reflectedLight.indirectDiffuse *= ambientOcclusion;
+
+    #if defined( USE_ENVMAP ) && defined( STANDARD )
+
+        float dotNV = saturate( dot( geometry.normal, geometry.viewDir ) );
+
+        reflectedLight.indirectSpecular *= computeSpecularOcclusion( dotNV, ambientOcclusion, material.specularRoughness );
+
+    #endif
+
+#endif
+
+
+    #ifdef ENVMAP_MODE_REFRACTION
+        vec3 outgoingLight = reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
+    #else
+        vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + reflectedLight.directSpecular + reflectedLight.indirectSpecular + totalEmissiveRadiance;
+    #endif
+
+    // this is a stub for the transparency model
+    #ifdef TRANSPARENCY
+        diffuseColor.a *= saturate( 1. - _transparency + linearToRelativeLuminance( reflectedLight.directSpecular + reflectedLight.indirectSpecular ) );
+    #endif
+
+    gl_FragColor = vec4( outgoingLight, diffuseColor.a );
+
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ tonemapping_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #if defined( TONE_MAPPING )
+
+        gl_FragColor.rgb = toneMapping( gl_FragColor.rgb );
+
+    #endif
+
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ encodings_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    gl_FragColor = linearToOutputTexel( gl_FragColor );
+
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ fog_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef USE_FOG
+
+        #ifdef FOG_EXP2
+
+            float fogFactor = 1.0 - exp( - fogDensity * fogDensity * fogDepth * fogDepth );
+
+        #else
+
+            float fogFactor = smoothstep( fogNear, fogFar, fogDepth );
+
+        #endif
+
+        gl_FragColor.rgb = mix( gl_FragColor.rgb, fogColor, fogFactor );
+
+    #endif
+
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ premultiplied_alpha_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef PREMULTIPLIED_ALPHA
+
+        // Get get normal blending with premultipled, use with CustomBlending, OneFactor, OneMinusSrcAlphaFactor, AddEquation.
+        gl_FragColor.rgb *= gl_FragColor.a;
+
+    #endif
+
+
+
+// -----------------------------------------------------------------------------------------------------
+// ------------------------------------------ dithering_fragment ------------------------------------------
+// -----------------------------------------------------------------------------------------------------
+    #ifdef DITHERING
+
+        gl_FragColor.rgb = dithering( gl_FragColor.rgb );
+
+    #endif
+
+
+}
+
+
+#endif

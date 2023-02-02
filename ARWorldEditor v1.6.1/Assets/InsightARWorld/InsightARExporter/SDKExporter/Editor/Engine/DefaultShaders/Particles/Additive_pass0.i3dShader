@@ -1,0 +1,150 @@
+#ifdef KEYWORD_SECTION
+#endif
+
+#ifdef VERTEX
+
+//////////////////////////////////////////////////////////////////////////
+//
+// --------------------------Vertex Include Begin-------------------------
+//
+//////////////////////////////////////////////////////////////////////////
+
+#ifndef INSIGHT3D_ANDROID
+    #define INSIGHT3D_IOS
+#endif
+
+// You can use the buildin macro 'INSIGHT3D_ANDROID' or 'INSIGHT3D_IOS' to verify different platforms.
+
+attribute vec3 a_position;
+attribute vec2 a_texcoord0;
+#ifdef SKIN_SHADER
+    attribute vec4 a_weight;
+    attribute vec4 a_indices;
+#endif
+attribute vec4 a_color0;
+
+#define SHADER_MAX_BONE 50
+uniform highp mat4 mat_bones[SHADER_MAX_BONE];
+
+uniform highp mat4 mat_ObjectToWorld;
+uniform highp mat4 mat_MatrixVP;
+
+#ifndef _COMPATIBLE_UNITY_VS_
+#define _COMPATIBLE_UNITY_VS_
+
+#define in_POSITION0 vec4( a_position, 1.0 )
+#define in_COLOR0 a_color0
+#define in_TEXCOORD0 a_texcoord0
+
+
+#ifndef SKIN_SHADER
+    #define hlslcc_mtx4x4unity_ObjectToWorld mat_ObjectToWorld
+#endif
+
+#define hlslcc_mtx4x4unity_MatrixVP mat_MatrixVP
+#endif
+
+//////////////////////////////////////////////////////////////////////////
+//
+// --------------------------Vertex Include End---------------------------
+//
+//////////////////////////////////////////////////////////////////////////
+
+#endif
+
+#ifdef FRAGMENT
+
+//////////////////////////////////////////////////////////////////////////
+//
+// --------------------------Fragment Include Begin-----------------------
+//
+//////////////////////////////////////////////////////////////////////////
+
+#ifdef GL_EXT_shader_texture_lod
+#extension GL_EXT_shader_texture_lod : enable
+#endif
+
+#ifdef INSIGHT3D_ANDROID
+    #extension GL_OES_EGL_image_external : require
+#else
+	#define INSIGHT3D_IOS
+#endif
+
+precision highp float;
+
+uniform highp mat4 mat_ObjectToWorld;
+uniform highp mat4 mat_MatrixVP;
+
+#ifndef _COMPATIBLE_UNITY_FS_
+#define _COMPATIBLE_UNITY_FS_
+
+#ifndef SKIN_SHADER
+    #define hlslcc_mtx4x4unity_ObjectToWorld mat_ObjectToWorld
+#endif
+
+#define hlslcc_mtx4x4unity_MatrixVP mat_MatrixVP
+
+
+#endif
+
+//////////////////////////////////////////////////////////////////////////
+//
+// --------------------------Fragment Include End-------------------------
+//
+//////////////////////////////////////////////////////////////////////////
+
+#endif
+
+
+#ifdef VERTEX
+
+uniform 	vec4 _MainTex_ST;
+varying mediump vec4 vs_COLOR0;
+varying highp vec2 vs_TEXCOORD0;
+vec4 u_xlat0;
+vec4 u_xlat1;
+void main()
+{
+    u_xlat0 = in_POSITION0.yyyy * hlslcc_mtx4x4unity_ObjectToWorld[1];
+    u_xlat0 = hlslcc_mtx4x4unity_ObjectToWorld[0] * in_POSITION0.xxxx + u_xlat0;
+    u_xlat0 = hlslcc_mtx4x4unity_ObjectToWorld[2] * in_POSITION0.zzzz + u_xlat0;
+    u_xlat0 = u_xlat0 + hlslcc_mtx4x4unity_ObjectToWorld[3];
+    u_xlat1 = u_xlat0.yyyy * hlslcc_mtx4x4unity_MatrixVP[1];
+    u_xlat1 = hlslcc_mtx4x4unity_MatrixVP[0] * u_xlat0.xxxx + u_xlat1;
+    u_xlat1 = hlslcc_mtx4x4unity_MatrixVP[2] * u_xlat0.zzzz + u_xlat1;
+    gl_Position = hlslcc_mtx4x4unity_MatrixVP[3] * u_xlat0.wwww + u_xlat1;
+    vs_COLOR0 = in_COLOR0;
+    vs_TEXCOORD0.xy = in_TEXCOORD0.xy * _MainTex_ST.xy + _MainTex_ST.zw;
+    return;
+}
+
+#endif
+#ifdef FRAGMENT
+
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+    precision highp float;
+#else
+    precision mediump float;
+#endif
+precision highp int;
+uniform 	mediump vec4 _TintColor;
+uniform lowp sampler2D _MainTex;
+varying mediump vec4 vs_COLOR0;
+varying highp vec2 vs_TEXCOORD0;
+#define SV_Target0 gl_FragData[0]
+mediump vec4 u_xlat16_0;
+lowp vec4 u_xlat10_1;
+void main()
+{
+    u_xlat16_0 = vs_COLOR0 + vs_COLOR0;
+    u_xlat16_0 = u_xlat16_0 * _TintColor;
+    u_xlat10_1 = texture2D(_MainTex, vs_TEXCOORD0.xy);
+    u_xlat16_0 = u_xlat16_0 * u_xlat10_1;
+    SV_Target0.w = u_xlat16_0.w;
+    SV_Target0.w = clamp(SV_Target0.w, 0.0, 1.0);
+    SV_Target0.xyz = u_xlat16_0.xyz;
+    return;
+}
+
+#endif
+

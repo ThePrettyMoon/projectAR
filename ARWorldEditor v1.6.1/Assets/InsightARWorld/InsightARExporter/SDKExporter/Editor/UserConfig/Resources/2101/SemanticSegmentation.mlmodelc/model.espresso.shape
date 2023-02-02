@@ -1,0 +1,1072 @@
+{
+  "layer_shapes" : {
+    "relu_network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/upscore_8s\/upscore8\/upscore8\/BiasAdd:0" : {
+      "k" : 2,
+      "w" : 224,
+      "n" : 1,
+      "h" : 224
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0_clip" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0_neg" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0_clip" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_7\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 256,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_13\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 512,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/mobilenet_encoder\/conv_ds_10\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "mask__0" : {
+      "k" : 1,
+      "w" : 224,
+      "n" : 1,
+      "h" : 224
+    },
+    "network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0" : {
+      "k" : 64,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0_neg" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0_neg" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_1\/Relu6:0_neg" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/mobilenet_encoder\/conv_ds_12\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/upscore_4s\/Add:0" : {
+      "k" : 2,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_11\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0_neg" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0_neg" : {
+      "k" : 512,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0_neg" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/upscore_2s\/upscore2\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 2,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0_neg" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0" : {
+      "k" : 128,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_1\/Relu6:0_clip" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0_clip" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/upscore_4s\/score_feed2\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 2,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0_clip" : {
+      "k" : 64,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0_clip" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0_neg" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0_clip" : {
+      "k" : 128,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "truediv:0" : {
+      "k" : 3,
+      "w" : 224,
+      "n" : 1,
+      "h" : 224
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0_clip" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0_clip" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0_clip" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0_neg" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/upscore_2s\/upscore2\/upscore2\/BiasAdd:0" : {
+      "k" : 2,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_14\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0_neg" : {
+      "k" : 64,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "network\/mobilenet_encoder\/conv_ds_9\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_13\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_13\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/mobilenet_encoder\/conv_ds_10\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0" : {
+      "k" : 64,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0_neg" : {
+      "k" : 256,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "network\/mobilenet_encoder\/conv_ds_3\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0_neg" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/mobilenet_encoder\/conv_1\/conv_1\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0_neg" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_14\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/mobilenet_encoder\/conv_ds_11\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0_clip" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0" : {
+      "k" : 64,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/mobilenet_encoder\/conv_ds_4\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0_clip" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0_clip" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "image__0" : {
+      "k" : 3,
+      "w" : 224,
+      "n" : 1,
+      "h" : 224
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0_clip" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0_clip" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/upscore_4s\/score_feed2\/score_feed2\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 2,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/upscore_2s\/score_feed1\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 2,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0_clip" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/mobilenet_encoder\/conv_ds_8\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_4\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "network\/mobilenet_encoder\/conv_1c_1x1\/conv_1c_1x1\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 2,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/mobilenet_encoder\/conv_ds_13\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 512,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "network\/upscore_4s\/upscore4\/upscore4\/BiasAdd:0" : {
+      "k" : 2,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/mobilenet_encoder\/conv_ds_12\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0_neg" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/mobilenet_encoder\/conv_ds_6\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/mobilenet_encoder\/conv_ds_2\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_14\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0_neg" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_9\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0_neg" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "network\/mobilenet_encoder\/conv_ds_11\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "network\/mobilenet_encoder\/conv_ds_6\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_3\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 64,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "network\/mobilenet_encoder\/conv_ds_8\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0_clip" : {
+      "k" : 256,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0_clip" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0_clip" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0_neg" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0_neg" : {
+      "k" : 64,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/mobilenet_encoder\/conv_ds_14\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0_neg" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/mobilenet_encoder\/conv_ds_2\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 64,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_5\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 128,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0" : {
+      "k" : 128,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/mobilenet_encoder\/conv_ds_11\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_12\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_10\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0_neg" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0_neg" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_4\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0" : {
+      "k" : 256,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_1\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/mobilenet_encoder\/conv_ds_4\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "network\/mobilenet_encoder\/conv_ds_9\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_2\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/mobilenet_encoder\/conv_ds_7\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 256,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "sub:0" : {
+      "k" : 3,
+      "w" : 224,
+      "n" : 1,
+      "h" : 224
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0_neg" : {
+      "k" : 128,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0_clip" : {
+      "k" : 512,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/mobilenet_encoder\/conv_1\/Relu6:0" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0_clip" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_1\/Relu6:0" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0" : {
+      "k" : 64,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/mobilenet_encoder\/conv_ds_8\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "network\/upscore_4s\/upscore4\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 2,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0_neg" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0_clip" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_5\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 128,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0_neg" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_6\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0_neg" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "network\/mobilenet_encoder\/conv_ds_9\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0_neg" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_2\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 64,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_3\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_8\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0" : {
+      "k" : 256,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_12\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_10\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_6\/pointwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "network\/upscore_2s\/score_feed1\/score_feed1\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 2,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0_clip" : {
+      "k" : 1024,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0_clip" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/mobilenet_encoder\/conv_ds_3\/depthwise\/batch_normalization\/FusedBatchNorm:0" : {
+      "k" : 64,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0" : {
+      "k" : 256,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0_clip" : {
+      "k" : 64,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0_clip" : {
+      "k" : 512,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "network\/upscore_2s\/Add:0" : {
+      "k" : 2,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0_clip" : {
+      "k" : 128,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    }
+  }
+}

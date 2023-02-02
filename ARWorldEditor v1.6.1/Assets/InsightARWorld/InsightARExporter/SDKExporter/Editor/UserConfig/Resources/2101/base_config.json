@@ -1,0 +1,29 @@
+{
+    "InputFeatureNum" : 1,
+    "InputWidth" : 224,
+    "InputHeight" : 224,
+    "OutFeatureNum" : 1,
+    "OutFeatureWidth" : 224,
+    "OutFeatureHeight" : 224,
+    "OutFeatureChannel" : 1,
+
+    "mnn" : {
+        "Format": "BGR",
+        "ModelPath": "SemanticSegmentation.mnn",
+        "Means": [0.0, 0.0, 0.0],
+        "Norms": [1.0, 1.0, 1.0],
+        "Encrypted" : 0
+    },
+
+    "coreml" : {
+          "bEncrypted" : 0,
+          "MlmodelcPath" : "SemanticSegmentation.mlmodelc",
+          "InputFeatureName" : "image__0",
+          "OutFeatureName" : "mask__0"
+    }
+}
+
+
+
+
+

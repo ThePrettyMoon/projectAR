@@ -1,0 +1,2634 @@
+{
+  "transform_params" : {
+    "image__0" : {
+      "bias_a" : 0,
+      "bias_g" : 0,
+      "bias_r" : 0,
+      "bias_b" : 0,
+      "center_mean" : 0,
+      "is_network_bgr" : 0,
+      "scale" : 1
+    }
+  },
+  "properties" : {
+
+  },
+  "storage" : "model.espresso.weights",
+  "format_version" : 200,
+  "layers" : [
+    {
+      "alpha" : -128,
+      "bottom" : "image__0",
+      "operation" : 0,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "sub:0",
+      "type" : "elementwise",
+      "name" : "sub:0",
+      "beta" : 0
+    },
+    {
+      "alpha" : 0.0078125,
+      "bottom" : "sub:0",
+      "operation" : 1,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "truediv:0",
+      "type" : "elementwise",
+      "name" : "truediv:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_1\/conv_1\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 3,
+      "K" : 3,
+      "blob_biases" : 1,
+      "stride_x" : 2,
+      "name" : "network\/mobilenet_encoder\/conv_1\/conv_1\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "stride_y" : 2,
+      "has_biases" : 1,
+      "C" : 32,
+      "bottom" : "truediv:0",
+      "weights" : {
+
+      },
+      "Nx" : 3,
+      "pad_mode" : 1,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_1\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_1\/conv_1\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_1\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 32,
+      "blob_batchnorm_params" : 5,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_1\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_1\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_1\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_1\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_1\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_1\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_1\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_1\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_1\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_1\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_1\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_1\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_2\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 9,
+      "K" : 32,
+      "blob_biases" : 7,
+      "name" : "network\/mobilenet_encoder\/conv_ds_2\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 32,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 32,
+      "bottom" : "network\/mobilenet_encoder\/conv_1\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 3,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_2\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_2\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_2\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 32,
+      "blob_batchnorm_params" : 11,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_2\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_2\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 15,
+      "K" : 32,
+      "blob_biases" : 13,
+      "name" : "network\/mobilenet_encoder\/conv_ds_2\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 64,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_2\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_2\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_2\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_2\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 64,
+      "blob_batchnorm_params" : 17,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_2\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_3\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 21,
+      "K" : 64,
+      "blob_biases" : 19,
+      "stride_x" : 2,
+      "name" : "network\/mobilenet_encoder\/conv_ds_3\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 64,
+      "pad_t" : 0,
+      "stride_y" : 2,
+      "has_biases" : 1,
+      "C" : 64,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_2\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "Nx" : 3,
+      "pad_mode" : 1,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_3\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_3\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_3\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 64,
+      "blob_batchnorm_params" : 23,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_3\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_3\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 27,
+      "K" : 64,
+      "blob_biases" : 25,
+      "name" : "network\/mobilenet_encoder\/conv_ds_3\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 128,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_3\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_3\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_3\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_3\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 128,
+      "blob_batchnorm_params" : 29,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_3\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_4\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 33,
+      "K" : 128,
+      "blob_biases" : 31,
+      "name" : "network\/mobilenet_encoder\/conv_ds_4\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 128,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 128,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_3\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 3,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_4\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_4\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_4\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 128,
+      "blob_batchnorm_params" : 35,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_4\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_4\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 39,
+      "K" : 128,
+      "blob_biases" : 37,
+      "name" : "network\/mobilenet_encoder\/conv_ds_4\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 128,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_4\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_4\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_4\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_4\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 128,
+      "blob_batchnorm_params" : 41,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_4\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_5\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 45,
+      "K" : 128,
+      "blob_biases" : 43,
+      "stride_x" : 2,
+      "name" : "network\/mobilenet_encoder\/conv_ds_5\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 128,
+      "pad_t" : 0,
+      "stride_y" : 2,
+      "has_biases" : 1,
+      "C" : 128,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_4\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "Nx" : 3,
+      "pad_mode" : 1,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_5\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_5\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_5\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 128,
+      "blob_batchnorm_params" : 47,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_5\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 51,
+      "K" : 128,
+      "blob_biases" : 49,
+      "name" : "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 256,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_5\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 256,
+      "blob_batchnorm_params" : 53,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/upscore_4s\/score_feed2\/score_feed2\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 57,
+      "K" : 256,
+      "blob_biases" : 55,
+      "name" : "network\/upscore_4s\/score_feed2\/score_feed2\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 2,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/upscore_4s\/score_feed2\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/upscore_4s\/score_feed2\/score_feed2\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/upscore_4s\/score_feed2\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 2,
+      "blob_batchnorm_params" : 59,
+      "type" : "batchnorm"
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_6\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 63,
+      "K" : 256,
+      "blob_biases" : 61,
+      "name" : "network\/mobilenet_encoder\/conv_ds_6\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 256,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 256,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_5\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 3,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_6\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_6\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_6\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 256,
+      "blob_batchnorm_params" : 65,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_6\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_6\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 69,
+      "K" : 256,
+      "blob_biases" : 67,
+      "name" : "network\/mobilenet_encoder\/conv_ds_6\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 256,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_6\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_6\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_6\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_6\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 256,
+      "blob_batchnorm_params" : 71,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_6\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_7\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 75,
+      "K" : 256,
+      "blob_biases" : 73,
+      "stride_x" : 2,
+      "name" : "network\/mobilenet_encoder\/conv_ds_7\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 256,
+      "pad_t" : 0,
+      "stride_y" : 2,
+      "has_biases" : 1,
+      "C" : 256,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_6\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "Nx" : 3,
+      "pad_mode" : 1,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_7\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_7\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_7\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 256,
+      "blob_batchnorm_params" : 77,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_7\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 81,
+      "K" : 256,
+      "blob_biases" : 79,
+      "name" : "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 512,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_7\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 512,
+      "blob_batchnorm_params" : 83,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/upscore_2s\/score_feed1\/score_feed1\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 87,
+      "K" : 512,
+      "blob_biases" : 85,
+      "name" : "network\/upscore_2s\/score_feed1\/score_feed1\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 2,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/upscore_2s\/score_feed1\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/upscore_2s\/score_feed1\/score_feed1\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/upscore_2s\/score_feed1\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 2,
+      "blob_batchnorm_params" : 89,
+      "type" : "batchnorm"
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_8\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 93,
+      "K" : 512,
+      "blob_biases" : 91,
+      "name" : "network\/mobilenet_encoder\/conv_ds_8\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 512,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 512,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_7\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 3,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_8\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_8\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_8\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 512,
+      "blob_batchnorm_params" : 95,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_8\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_8\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 99,
+      "K" : 512,
+      "blob_biases" : 97,
+      "name" : "network\/mobilenet_encoder\/conv_ds_8\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 512,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_8\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_8\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_8\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_8\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 512,
+      "blob_batchnorm_params" : 101,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_8\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_9\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 105,
+      "K" : 512,
+      "blob_biases" : 103,
+      "name" : "network\/mobilenet_encoder\/conv_ds_9\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 512,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 512,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_8\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 3,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_9\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_9\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_9\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 512,
+      "blob_batchnorm_params" : 107,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_9\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_9\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 111,
+      "K" : 512,
+      "blob_biases" : 109,
+      "name" : "network\/mobilenet_encoder\/conv_ds_9\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 512,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_9\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_9\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_9\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_9\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 512,
+      "blob_batchnorm_params" : 113,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_9\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_10\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 117,
+      "K" : 512,
+      "blob_biases" : 115,
+      "name" : "network\/mobilenet_encoder\/conv_ds_10\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 512,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 512,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_9\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 3,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_10\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_10\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_10\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 512,
+      "blob_batchnorm_params" : 119,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_10\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_10\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 123,
+      "K" : 512,
+      "blob_biases" : 121,
+      "name" : "network\/mobilenet_encoder\/conv_ds_10\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 512,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_10\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_10\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_10\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_10\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 512,
+      "blob_batchnorm_params" : 125,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_10\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_11\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 129,
+      "K" : 512,
+      "blob_biases" : 127,
+      "name" : "network\/mobilenet_encoder\/conv_ds_11\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 512,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 512,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_10\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 3,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_11\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_11\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_11\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 512,
+      "blob_batchnorm_params" : 131,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_11\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_11\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 135,
+      "K" : 512,
+      "blob_biases" : 133,
+      "name" : "network\/mobilenet_encoder\/conv_ds_11\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 512,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_11\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_11\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_11\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_11\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 512,
+      "blob_batchnorm_params" : 137,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_11\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_12\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 141,
+      "K" : 512,
+      "blob_biases" : 139,
+      "name" : "network\/mobilenet_encoder\/conv_ds_12\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 512,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 512,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_11\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 3,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_12\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_12\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_12\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 512,
+      "blob_batchnorm_params" : 143,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_12\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_12\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 147,
+      "K" : 512,
+      "blob_biases" : 145,
+      "name" : "network\/mobilenet_encoder\/conv_ds_12\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 512,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_12\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_12\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_12\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_12\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 512,
+      "blob_batchnorm_params" : 149,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_12\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_13\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 153,
+      "K" : 512,
+      "blob_biases" : 151,
+      "stride_x" : 2,
+      "name" : "network\/mobilenet_encoder\/conv_ds_13\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 512,
+      "pad_t" : 0,
+      "stride_y" : 2,
+      "has_biases" : 1,
+      "C" : 512,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_12\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "Nx" : 3,
+      "pad_mode" : 1,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_13\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_13\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_13\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 512,
+      "blob_batchnorm_params" : 155,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_13\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_13\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 159,
+      "K" : 512,
+      "blob_biases" : 157,
+      "name" : "network\/mobilenet_encoder\/conv_ds_13\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 1024,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_13\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_13\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_13\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_13\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 1024,
+      "blob_batchnorm_params" : 161,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_13\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_14\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 165,
+      "K" : 1024,
+      "blob_biases" : 163,
+      "name" : "network\/mobilenet_encoder\/conv_ds_14\/depthwise\/depthwise\/layer_conv2d\/depthwise:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1024,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 1024,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_13\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 3,
+      "pad_value" : 0,
+      "Ny" : 3,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_14\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_14\/depthwise\/depthwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_14\/depthwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 1024,
+      "blob_batchnorm_params" : 167,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_14\/depthwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_ds_14\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 171,
+      "K" : 1024,
+      "blob_biases" : 169,
+      "name" : "network\/mobilenet_encoder\/conv_ds_14\/pointwise\/pointwise\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 1024,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_14\/depthwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/mobilenet_encoder\/conv_ds_14\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_14\/pointwise\/pointwise\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/mobilenet_encoder\/conv_ds_14\/pointwise\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 1024,
+      "blob_batchnorm_params" : 173,
+      "type" : "batchnorm"
+    },
+    {
+      "mode" : 0,
+      "weights" : {
+
+      },
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0",
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_14\/pointwise\/batch_normalization\/FusedBatchNorm:0"
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0_neg",
+      "type" : "activation",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0_neg",
+      "beta" : 0
+    },
+    {
+      "alpha" : -6,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0_neg",
+      "operation" : 25,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "relu_network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0_clip",
+      "type" : "elementwise",
+      "name" : "relu_network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0_clip",
+      "beta" : 0
+    },
+    {
+      "alpha" : -1,
+      "bottom" : "relu_network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0_clip",
+      "weights" : {
+
+      },
+      "mode" : 6,
+      "top" : "network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0",
+      "type" : "activation",
+      "name" : "network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/mobilenet_encoder\/conv_1c_1x1\/conv_1c_1x1\/layer_conv2d\/BiasAdd:0",
+      "blob_weights" : 177,
+      "K" : 1024,
+      "blob_biases" : 175,
+      "name" : "network\/mobilenet_encoder\/conv_1c_1x1\/conv_1c_1x1\/layer_conv2d\/Conv2D:0",
+      "has_batch_norm" : 0,
+      "type" : "convolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "has_biases" : 1,
+      "C" : 2,
+      "bottom" : "network\/mobilenet_encoder\/conv_ds_14\/pointwise\/Relu6:0",
+      "weights" : {
+
+      },
+      "pad_mode" : 1,
+      "Nx" : 1,
+      "pad_value" : 0,
+      "Ny" : 1,
+      "n_parallel" : 1
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/upscore_2s\/upscore2\/upscore2\/BiasAdd:0",
+      "blob_weights" : 181,
+      "K" : 2,
+      "blob_biases" : 179,
+      "stride_x" : 2,
+      "name" : "network\/upscore_2s\/upscore2\/upscore2\/conv2d_transpose:0",
+      "has_batch_norm" : 0,
+      "type" : "deconvolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "stride_y" : 2,
+      "has_biases" : 1,
+      "C" : 2,
+      "bottom" : "network\/mobilenet_encoder\/conv_1c_1x1\/conv_1c_1x1\/layer_conv2d\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "Nx" : 4,
+      "pad_mode" : 1,
+      "pad_value" : 0,
+      "Ny" : 4,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/upscore_2s\/upscore2\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/upscore_2s\/upscore2\/upscore2\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/upscore_2s\/upscore2\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 2,
+      "blob_batchnorm_params" : 183,
+      "type" : "batchnorm"
+    },
+    {
+      "alpha" : 1,
+      "bottom" : "network\/upscore_2s\/score_feed1\/batch_normalization\/FusedBatchNorm:0,network\/upscore_2s\/upscore2\/batch_normalization\/FusedBatchNorm:0",
+      "operation" : 0,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "network\/upscore_2s\/Add:0",
+      "type" : "elementwise",
+      "name" : "network\/upscore_2s\/Add:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/upscore_4s\/upscore4\/upscore4\/BiasAdd:0",
+      "blob_weights" : 187,
+      "K" : 2,
+      "blob_biases" : 185,
+      "stride_x" : 2,
+      "name" : "network\/upscore_4s\/upscore4\/upscore4\/conv2d_transpose:0",
+      "has_batch_norm" : 0,
+      "type" : "deconvolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "stride_y" : 2,
+      "has_biases" : 1,
+      "C" : 2,
+      "bottom" : "network\/upscore_2s\/Add:0",
+      "weights" : {
+
+      },
+      "Nx" : 4,
+      "pad_mode" : 1,
+      "pad_value" : 0,
+      "Ny" : 4,
+      "n_parallel" : 1
+    },
+    {
+      "name" : "network\/upscore_4s\/upscore4\/batch_normalization\/FusedBatchNorm:0",
+      "bottom" : "network\/upscore_4s\/upscore4\/upscore4\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "top" : "network\/upscore_4s\/upscore4\/batch_normalization\/FusedBatchNorm:0",
+      "C" : 2,
+      "blob_batchnorm_params" : 189,
+      "type" : "batchnorm"
+    },
+    {
+      "alpha" : 1,
+      "bottom" : "network\/upscore_4s\/score_feed2\/batch_normalization\/FusedBatchNorm:0,network\/upscore_4s\/upscore4\/batch_normalization\/FusedBatchNorm:0",
+      "operation" : 0,
+      "weights" : {
+
+      },
+      "fused_relu" : 0,
+      "top" : "network\/upscore_4s\/Add:0",
+      "type" : "elementwise",
+      "name" : "network\/upscore_4s\/Add:0",
+      "beta" : 0
+    },
+    {
+      "pad_r" : 0,
+      "fused_relu" : 0,
+      "fused_tanh" : 0,
+      "pad_fill_mode" : 0,
+      "pad_b" : 0,
+      "pad_l" : 0,
+      "top" : "network\/upscore_8s\/upscore8\/upscore8\/BiasAdd:0",
+      "blob_weights" : 193,
+      "K" : 2,
+      "blob_biases" : 191,
+      "stride_x" : 8,
+      "name" : "network\/upscore_8s\/upscore8\/upscore8\/conv2d_transpose:0",
+      "has_batch_norm" : 0,
+      "type" : "deconvolution",
+      "n_groups" : 1,
+      "pad_t" : 0,
+      "stride_y" : 8,
+      "has_biases" : 1,
+      "C" : 2,
+      "bottom" : "network\/upscore_4s\/Add:0",
+      "weights" : {
+
+      },
+      "Nx" : 16,
+      "pad_mode" : 1,
+      "pad_value" : 0,
+      "Ny" : 16,
+      "n_parallel" : 1
+    },
+    {
+      "axis_mode" : 4,
+      "bottom" : "network\/upscore_8s\/upscore8\/upscore8\/BiasAdd:0",
+      "weights" : {
+
+      },
+      "mode" : 11,
+      "use_version" : 1,
+      "top" : "mask__0",
+      "type" : "reduce",
+      "name" : "ArgMax:0"
+    }
+  ]
+}

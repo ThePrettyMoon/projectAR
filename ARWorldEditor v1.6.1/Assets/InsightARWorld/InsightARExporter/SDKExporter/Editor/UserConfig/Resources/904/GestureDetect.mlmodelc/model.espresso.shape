@@ -1,0 +1,250 @@
+{
+  "layer_shapes" : {
+    "relu_conv_s1" : {
+      "k" : 32,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "relu_dense3_1\/branch2a" : {
+      "k" : 128,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_dense2_1\/branch2b" : {
+      "k" : 64,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "conv_s1_33_pad_output" : {
+      "k" : 16,
+      "w" : 114,
+      "n" : 1,
+      "h" : 114
+    },
+    "relu_dense1_1\/branch1a" : {
+      "k" : 32,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_dense3_1\/branch1b" : {
+      "k" : 128,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "dense2_1\/branch2b_pad_output" : {
+      "k" : 64,
+      "w" : 30,
+      "n" : 1,
+      "h" : 30
+    },
+    "relu_dense1_1\/branch2c" : {
+      "k" : 32,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "dense3_1\/branch2c_pad_output" : {
+      "k" : 128,
+      "w" : 16,
+      "n" : 1,
+      "h" : 16
+    },
+    "conv_s1_pad_output" : {
+      "k" : 3,
+      "w" : 226,
+      "n" : 1,
+      "h" : 226
+    },
+    "relu_dense2_1\/branch2a" : {
+      "k" : 64,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "concat3" : {
+      "k" : 256,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "dense3_1\/branch1b_pad_output" : {
+      "k" : 128,
+      "w" : 16,
+      "n" : 1,
+      "h" : 16
+    },
+    "relu_conv_s1_11" : {
+      "k" : 16,
+      "w" : 112,
+      "n" : 1,
+      "h" : 112
+    },
+    "relu_dense2_1\/branch1b" : {
+      "k" : 64,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "relu_dense3_1\/branch1a" : {
+      "k" : 128,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "dense1_1\/branch2b_pad_output" : {
+      "k" : 32,
+      "w" : 58,
+      "n" : 1,
+      "h" : 58
+    },
+    "relu_dense1_1\/branch2b" : {
+      "k" : 32,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_dense3_1\/branch2c" : {
+      "k" : 128,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "dense3_pool" : {
+      "k" : 256,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "concat2" : {
+      "k" : 128,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "dense2_1\/branch2c_pad_output" : {
+      "k" : 64,
+      "w" : 30,
+      "n" : 1,
+      "h" : 30
+    },
+    "dense2_pool" : {
+      "k" : 128,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "relu_conv_s1_33" : {
+      "k" : 16,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "data" : {
+      "k" : 3,
+      "w" : 224,
+      "n" : 1,
+      "h" : 224
+    },
+    "conv5_1" : {
+      "k" : 256,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "relu_conv_12" : {
+      "k" : 32,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_dense2_1\/branch1a" : {
+      "k" : 64,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "concat1" : {
+      "k" : 64,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_dense1_1\/branch2a" : {
+      "k" : 32,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_dense2_1\/branch2c" : {
+      "k" : 64,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "dense1_pool" : {
+      "k" : 64,
+      "w" : 28,
+      "n" : 1,
+      "h" : 28
+    },
+    "dense1_1\/branch2c_pad_output" : {
+      "k" : 32,
+      "w" : 58,
+      "n" : 1,
+      "h" : 58
+    },
+    "dense2_1\/branch1b_pad_output" : {
+      "k" : 64,
+      "w" : 30,
+      "n" : 1,
+      "h" : 30
+    },
+    "relu_dense3_1\/branch2b" : {
+      "k" : 128,
+      "w" : 14,
+      "n" : 1,
+      "h" : 14
+    },
+    "pool_conv_s1" : {
+      "k" : 32,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "relu_dense1_1\/branch1b" : {
+      "k" : 32,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "dense1_1\/branch1b_pad_output" : {
+      "k" : 32,
+      "w" : 58,
+      "n" : 1,
+      "h" : 58
+    },
+    "concat0" : {
+      "k" : 48,
+      "w" : 56,
+      "n" : 1,
+      "h" : 56
+    },
+    "conv_pred_11_output" : {
+      "k" : 80,
+      "w" : 7,
+      "n" : 1,
+      "h" : 7
+    },
+    "dense3_1\/branch2b_pad_output" : {
+      "k" : 128,
+      "w" : 16,
+      "n" : 1,
+      "h" : 16
+    }
+  }
+}

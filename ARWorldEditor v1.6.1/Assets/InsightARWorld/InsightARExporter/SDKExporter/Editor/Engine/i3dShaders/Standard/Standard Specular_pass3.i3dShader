@@ -1,0 +1,66 @@
+#ifdef SHADOWS_DEPTH
+
+#ifdef VERTEX
+
+#ifndef INSIGHT3D_ANDROID
+    #define INSIGHT3D_IOS
+#endif
+
+#define saturate(a) clamp( a, 0.0, 1.0 )
+
+attribute vec3 a_position;
+attribute vec4 a_normal;
+
+uniform mat4 mat_ObjectToWorld; //modelMatrix
+uniform mat4 mat_WorldToObject;
+uniform mat4 mat_MatrixVP;
+uniform vec3 u_world_space_camera_pos;//cameraPosition
+uniform vec4 u_light0_pos_world;
+
+#define unity_LightShadowBiasX 0.04
+#define unity_LightShadowBiasY 1.0
+#define unity_LightShadowBiasZpart1 0.00078125 // normalBias / shadowmapSize
+#define unity_LightShadowBiasZpart2 0.00390625 // normalBias / shadowmapSize * shadowDis / 2
+
+void main() {
+
+    vec4 wPos = mat_ObjectToWorld * vec4( a_position , 1.0 );
+
+    float biasZ = unity_LightShadowBiasZpart1 * ( 1.0 / mat_MatrixVP[0].x) + unity_LightShadowBiasZpart2;
+    if (biasZ != 0.0)
+    {
+        vec3 wNormal = normalize(a_normal * mat_WorldToObject).xyz;
+        vec3 wLight = normalize(u_light0_pos_world.xyz);
+
+        // apply normal offset bias (inset position along the normal)
+        // bias needs to be scaled by sine between normal and light direction
+        // (http://the-witness.net/news/2013/09/shadow-mapping-summary-part-1/)
+        //
+        // unity_LightShadowBias.z contains user-specified normal offset amount
+        // scaled by world space texel size.
+
+        float shadowCos = dot(wNormal, wLight);
+        float shadowSine = sqrt(1.0 - shadowCos * shadowCos);
+        float normalBias = biasZ * shadowSine;
+
+        wPos.xyz -= wNormal * normalBias;
+    } 
+
+    vec4 pos = mat_MatrixVP * wPos;
+
+	// pos.z += saturate(unity_LightShadowBias.x/pos.w);
+	pos.z += saturate(mat_MatrixVP[0].x * unity_LightShadowBiasX/pos.w);
+    float clamped = max(pos.z, -pos.w);
+    pos.z = mix(pos.z, clamped, unity_LightShadowBiasY);
+    gl_Position = pos;
+}
+
+#endif
+
+#ifdef FRAGMENT
+void main () {
+    gl_FragData[0] = vec4(0.0);
+}
+#endif
+
+#endif

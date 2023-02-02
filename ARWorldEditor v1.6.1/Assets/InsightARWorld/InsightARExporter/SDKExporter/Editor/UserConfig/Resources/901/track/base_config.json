@@ -1,0 +1,33 @@
+{
+    "InputFeatureNum" : 1,
+    "InputWidth" : 40,
+    "InputHeight" : 40,
+    "OutFeatureNum" : 1,
+    "OutFeatureWidth" : 5,
+    "OutFeatureHeight" : 5,
+    "OutFeatureChannel" : 75,
+    
+    "ncnn" : {
+        "InputFeatureIndex" : 0,
+        "OutFeatureIndex" : 65,
+        "InputFeatureName" : "data",
+        "OutFeatureName" : "conv_pred_11_output",
+        "WeightPath" : "1205_pelee_refine_concat_40-0568.bin",
+        "ParamPath" : "1205_pelee_refine_concat_40-0568.weight",
+        "Means" : [123.68, 116.779, 103.939],
+        "Norms" : [0.00392157, 0.00392157, 0.00392157],
+        "Format": "RGB"
+    },
+    
+    "coreml" : {
+          "bEncrypted" : 0,
+          "MlmodelcPath" : "GestureDetect.mlmodelc",
+          "InputFeatureName" : "data",
+          "OutFeatureName" : "conv_pred_11_output"
+    }
+}
+
+
+
+
+

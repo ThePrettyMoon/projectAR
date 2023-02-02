@@ -1,0 +1,25 @@
+function #SCRIPTNAME#(gameObject)
+{
+    this.className = "#SCRIPTNAME#";
+    this.gameObject = gameObject;
+}
+//Write prototype function here
+#SCRIPTNAME#.prototype = Object.assign(Object.create(Object.prototype), {
+    // Start is called before the first frame update
+    Start: function(){
+        #NOTRIM#
+    },
+    // Update is called once per frame
+    Update: function()
+    {
+        #NOTRIM#
+    }
+});
+
+// Debugger Methods Begin
+var SafeFunctor=SafeFunctor||function(func){return function(){try{return func.apply(this,arguments)}catch(e){var msg="ClassName: "+this.className+", LineNo: "+(e.lineNumber||e.line)+", Msg: "+e.message+"\r\nStackTrace: "+(e.stackTrace||e.stack);console.error(msg)}}};
+var SafeWrapper=SafeWrapper||function(classObject){var o=classObject.prototype;for(var key in o){var func=o[key];if(typeof(func)==='function'){o[key]=SafeFunctor(func)}}};
+SafeWrapper(#SCRIPTNAME#);
+// Debugger Methods End
+//Return the script module
+#SCRIPTNAME#

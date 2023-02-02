@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 9bfc508160c60794f84101ba9236492a
+ShaderImporter:
+  externalObjects: {}
+  defaultTextures:
+  - _caidai2: {fileID: 2800000, guid: 505d7c58f9dc3a345bc9d9954769cdf0, type: 3}
+  nonModifiableTextures: []
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

@@ -1,0 +1,35 @@
+local #SCRIPTNAME# = {};
+
+-- New is called after resources are completely loaded
+function #SCRIPTNAME#:New( game_object )
+	if self ~= #SCRIPTNAME# then return nil, "First argument must be self." end
+	local new_instance = setmetatable( {} , { __metatable = {}, __index = #SCRIPTNAME# } );
+	new_instance.gameObject = game_object;
+	return new_instance;
+end
+
+-- Start is called before the first frame update
+function #SCRIPTNAME#:Start()
+
+	--------------- 示例代码部分 ---------------------
+	Insight.Debug.Log( "Hello from #SCRIPTNAME#:Start: " .. self.gameObject.name .. "\n" );
+
+	local main_camera_entity = Insight.GameObject.Find( "Main Camera" );
+	if IsNil( main_camera_entity ) then return; end
+	Insight.Debug.Log( "#SCRIPTNAME#:Start: MainCamera is " .. main_camera_entity.name .. "\n" );
+
+	local main_camera = main_camera_entity:GetComponent( "Camera" );
+	if nil == main_camera then return; end
+
+	local view_port = main_camera.pixelRect;
+	Insight.Debug.Log( "#SCRIPTNAME#:Start: Viewport is (" .. view_port.x .. ", " .. view_port.y .. ")~(" .. view_port.z .. ", " .. view_port.w .. ")" .. "\n" );
+	--------------- 示例代码结束 ---------------------
+
+end
+
+-- Update is called once per frame
+function #SCRIPTNAME#:Update()
+	#NOTRIM#
+end
+
+return #SCRIPTNAME#;

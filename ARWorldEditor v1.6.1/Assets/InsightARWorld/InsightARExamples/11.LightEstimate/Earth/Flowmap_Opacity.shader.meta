@@ -1,0 +1,10 @@
+fileFormatVersion: 2
+guid: 6efc0b04337144626898dae3eb78210e
+timeCreated: 1522739048
+licenseType: Pro
+ShaderImporter:
+  defaultTextures:
+  - _Flow_UV: {fileID: 2800000, guid: 61f649213f31d0842886cca7d7597577, type: 3}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

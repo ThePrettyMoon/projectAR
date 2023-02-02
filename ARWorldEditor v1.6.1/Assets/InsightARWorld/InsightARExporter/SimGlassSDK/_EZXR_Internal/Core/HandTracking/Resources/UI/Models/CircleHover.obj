@@ -1,0 +1,24 @@
+# ProBuilder 4.0.5
+# https://unity3d.com/unity/features/worldbuilding/probuilder
+# 2021/9/23 15:44:47
+
+mtllib ./CircleHover.mtl
+o CircleHover
+
+g CircleHover
+v -0.05 -0.05 -0.015
+v 0.05 -0.05 -0.015
+v -0.05 0.05 -0.015
+v 0.05 0.05 -0.015
+
+vt 1 0
+vt 0 0
+vt 1 1
+vt 0 1
+
+vn 0 0 -0.03
+
+g CircleHover
+usemtl ARButtonFloatingHoverCircle
+f 3/3/1 4/4/1 2/2/1 1/1/1
+
