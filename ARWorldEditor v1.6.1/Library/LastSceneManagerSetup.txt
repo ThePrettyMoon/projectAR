@@ -1,5 +1,5 @@
 sceneSetups:
-- path: Assets/RedLanternCollection/Scene/lantern.unity
+- path: Assets/InsightARWorld/UserContent/Scenes_m/174777_V1/scene_174777_V1.unity
   isLoaded: 1
   isActive: 1
   isSubScene: 0
